@@ -1,0 +1,523 @@
+# ruoyi-vue-pro 前端开发规范
+
+本项目是基于 Vue 3 + Vite + Element Plus + TypeScript 的管理后台系统。
+
+## 技术栈
+
+- **框架**: Vue 3.5.12 (Composition API)
+- **构建工具**: Vite 5.1.4
+- **UI 组件库**: Element Plus 2.11.1
+- **语言**: TypeScript 5.3.3
+- **状态管理**: Pinia 2.1.7 + pinia-plugin-persistedstate
+- **路由**: Vue Router 4.4.5
+- **国际化**: Vue I18n 9.10.2
+- **CSS 方案**: UnoCSS 0.58.5 (原子化 CSS)
+- **图标**: Iconify 3.1.1
+- **HTTP 请求**: Axios 1.9.0
+- **富文本编辑器**: WangEditor 5.6.46
+
+## 项目结构
+
+```
+src/
+├── api/              # API 接口定义
+├── assets/           # 静态资源 (图片、音频、SVG 等)
+├── components/       # 全局公共组件
+├── config/           # 配置文件 (axios 等)
+├── directives/       # 全局指令
+├── hooks/            # 组合式函数 (Composables)
+├── layout/           # 布局组件
+├── locales/          # 国际化语言文件
+├── plugins/          # 插件配置
+├── router/           # 路由配置
+├── store/            # Pinia 状态管理
+├── styles/           # 全局样式
+├── types/            # TypeScript 类型定义
+├── utils/            # 工具函数
+├── views/            # 页面视图
+├── App.vue           # 根组件
+├── main.ts           # 入口文件
+└── permission.ts     # 权限控制
+```
+
+## 开发规范
+
+### 1. 页面开发 (Views)
+
+#### 1.1 目录结构
+
+在 `src/views/` 目录下，每个功能模块对应一个目录，所有相关的 `.vue` 文件都放在该目录下。
+
+**标准结构**:
+```
+views/
+└── system/
+    └── post/                    # 岗位管理模块
+        ├── index.vue            # 列表页面
+        ├── PostForm.vue         # 表单页面 (新增/编辑)
+        └── components/          # 模块私有组件
+            └── SearchForm.vue
+```
+
+**为什么拆分列表和表单？**
+- 每个 Vue 文件只实现一个功能，代码更简洁
+- 维护性更好，Git 代码冲突概率低
+- 按需加载，提升性能
+
+#### 1.2 常见页面类型
+
+**分页列表**: 参考 `src/views/system/post/index.vue`
+- 包含查询表单、数据表格、分页组件
+- 使用 `loading`、`total`、`list`、`queryParams` 等响应式变量
+
+**树形列表**: 参考 `src/views/system/dept/index.vue`
+- 使用 Element Plus 的 `el-tree` 或 `el-table` 的树形结构
+- 数据格式需要 `children` 字段
+
+**高性能列表**: 参考 `src/views/system/area/index.vue`
+- 基于 Virtualized Table 虚拟化表格实现
+- 解决超过 1000 条数据时的性能问题
+
+**详情弹窗**: 参考 `src/views/infra/apiAccessLog/ApiAccessLogDetail.vue`
+- 使用 Dialog 组件展示详情信息
+
+#### 1.3 页面编码规范
+
+```vue
+<script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue'
+import * as PostApi from '@/api/system/post'
+import type { PostVO } from '@/api/system/post/types'
+
+// 响应式数据
+const loading = ref(true)
+const total = ref(0)
+const list = ref<PostVO[]>([])
+const queryParams = reactive({
+  pageNo: 1,
+  pageSize: 10,
+  code: '',
+  name: '',
+  status: undefined
+})
+
+// 查询列表
+const getList = async () => {
+  loading.value = true
+  try {
+    const data = await PostApi.getPostPage(queryParams)
+    list.value = data.list
+    total.value = data.total
+  } finally {
+    loading.value = false
+  }
+}
+
+// 生命周期
+onMounted(() => {
+  getList()
+})
+</script>
+
+<template>
+  <div>
+    <!-- 页面内容 -->
+  </div>
+</template>
+
+<style lang="scss" scoped>
+/* 页面样式 */
+</style>
+```
+
+### 2. API 接口 (API)
+
+#### 2.1 目录结构
+
+在 `src/api/` 目录下，每个模块对应一个目录，包含 `index.ts` 文件。
+
+```
+api/
+└── system/
+    └── post/
+        ├── index.ts      # API 方法定义
+        └── types.ts      # TypeScript 类型定义 (可选)
+```
+
+#### 2.2 API 编码规范
+
+```typescript
+// src/api/system/post/index.ts
+import request from '@/config/axios'
+
+// 定义类型 (对应后端 VO)
+export interface PostVO {
+  id: number
+  code: string
+  name: string
+  sort: number
+  status: number
+  remark?: string
+  createTime?: Date
+}
+
+export interface PostPageReqVO extends PageParam {
+  code?: string
+  name?: string
+  status?: number
+}
+
+// 查询岗位分页
+export const getPostPage = (params: PostPageReqVO) => {
+  return request.get({ url: '/system/post/page', params })
+}
+
+// 查询岗位详情
+export const getPost = (id: number) => {
+  return request.get({ url: '/system/post/get?id=' + id })
+}
+
+// 新增岗位
+export const createPost = (data: PostVO) => {
+  return request.post({ url: '/system/post/create', data })
+}
+
+// 修改岗位
+export const updatePost = (data: PostVO) => {
+  return request.put({ url: '/system/post/update', data })
+}
+
+// 删除岗位
+export const deletePost = (id: number) => {
+  return request.delete({ url: '/system/post/delete?id=' + id })
+}
+
+// 导出岗位
+export const exportPost = (params: PostPageReqVO) => {
+  return request.download({ url: '/system/post/export-excel', params })
+}
+```
+
+#### 2.3 请求封装
+
+`src/config/axios/service.ts` 基于 Axios 封装，提供以下功能：
+
+**Request 拦截器**:
+- 自动添加 `Authorization` 请求头 (Bearer Token)
+- 自动添加 `tenant-id` 请求头 (多租户支持)
+- GET 请求参数拼接
+
+**Response 拦截器**:
+- AccessToken 过期时，自动使用 RefreshToken 刷新
+- RefreshToken 过期时，跳转登录页
+- 统一错误提示 (Message)
+
+### 3. 组件开发 (Components)
+
+#### 3.1 全局组件
+
+在 `src/components/` 目录下，实现全局公共组件。
+
+**常用全局组件**:
+- `ContentWrap`: 内容包裹器
+- `Dialog`: 对话框封装
+- `Form`: 表单封装
+- `Table`: 表格封装
+- `Pagination`: 分页组件
+- `Editor`: 富文本编辑器
+- `UploadFile`: 文件上传
+- `DictTag`: 字典标签
+- `Icon`: 图标组件
+
+#### 3.2 模块内组件
+
+在 `src/views/[模块]/components/` 目录下，实现模块私有组件。
+
+```
+views/
+└── system/
+    └── post/
+        └── components/
+            ├── SearchForm.vue    # 搜索表单
+            └── PostDetail.vue    # 岗位详情
+```
+
+#### 3.3 组件编码规范
+
+```vue
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+
+// Props 定义
+interface Props {
+  title: string
+  visible: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  title: '默认标题',
+  visible: false
+})
+
+// Emits 定义
+interface Emits {
+  (e: 'update:visible', value: boolean): void
+  (e: 'confirm', data: any): void
+}
+
+const emit = defineEmits<Emits>()
+
+// 组件逻辑
+const handleClose = () => {
+  emit('update:visible', false)
+}
+</script>
+
+<template>
+  <el-dialog :model-value="visible" :title="title" @close="handleClose">
+    <!-- 内容 -->
+  </el-dialog>
+</template>
+
+<style lang="scss" scoped>
+/* 组件样式 */
+</style>
+```
+
+### 4. 状态管理 (Store)
+
+使用 Pinia + pinia-plugin-persistedstate 实现状态管理和持久化。
+
+**核心 Store**:
+- `src/store/modules/user.ts`: 用户信息、角色、权限
+- `src/store/modules/app.ts`: 应用配置、主题、语言
+- `src/store/modules/permission.ts`: 路由权限
+- `src/store/modules/dict.ts`: 字典数据缓存
+
+```typescript
+// src/store/modules/user.ts
+import { defineStore } from 'pinia'
+import { store } from '@/store'
+
+interface UserState {
+  userInfo: UserInfo | null
+  roles: string[]
+  permissions: string[]
+}
+
+export const useUserStore = defineStore('user', {
+  state: (): UserState => ({
+    userInfo: null,
+    roles: [],
+    permissions: []
+  }),
+  
+  getters: {
+    getUserInfo(): UserInfo | null {
+      return this.userInfo
+    }
+  },
+  
+  actions: {
+    setUserInfo(info: UserInfo) {
+      this.userInfo = info
+    }
+  },
+  
+  persist: true // 开启持久化
+})
+
+// 在 setup 外使用
+export const useUserStoreWithOut = () => {
+  return useUserStore(store)
+}
+```
+
+### 5. 样式规范 (Styles)
+
+#### 5.1 全局样式
+
+在 `src/styles/` 目录下定义全局样式:
+- `index.scss`: 全局样式入口
+- `variables.scss`: SCSS 变量
+- `var.css`: CSS 变量
+- `theme.scss`: 主题样式
+
+#### 5.2 UnoCSS 原子化 CSS
+
+项目使用 UnoCSS，优先使用原子类:
+
+```vue
+<template>
+  <div class="flex items-center justify-between p-4 mb-2">
+    <span class="text-lg font-bold">标题</span>
+    <el-button type="primary">操作</el-button>
+  </div>
+</template>
+```
+
+#### 5.3 组件样式
+
+每个 `.vue` 文件的样式必须添加 `scoped`:
+
+```vue
+<style lang="scss" scoped>
+.post-list {
+  padding: 20px;
+  
+  .post-item {
+    margin-bottom: 10px;
+  }
+}
+</style>
+```
+
+### 6. TypeScript 规范
+
+#### 6.1 类型定义
+
+- API 类型定义在 `src/api/[模块]/types.ts`
+- 全局类型定义在 `src/types/`
+- 组件 Props/Emits 使用 TypeScript 接口定义
+
+#### 6.2 类型导入
+
+```typescript
+// 类型导入使用 type 关键字
+import type { PostVO } from '@/api/system/post/types'
+import type { FormInstance } from 'element-plus'
+```
+
+### 7. 工具函数 (Utils)
+
+在 `src/utils/` 目录下定义工具函数:
+- `auth.ts`: 权限判断
+- `dict.ts`: 字典处理
+- `formatter.ts`: 格式化函数
+- `dateUtil.ts`: 日期处理
+- `download.ts`: 文件下载
+- `tree.ts`: 树形数据处理
+
+### 8. 路由规范
+
+路由配置在 `src/router/` 目录下:
+
+```typescript
+const route: AppRouteRecordRaw = {
+  path: '/system',
+  component: Layout,
+  name: 'System',
+  meta: {
+    title: '系统管理',
+    icon: 'ep:setting'
+  },
+  children: [
+    {
+      path: 'post',
+      component: () => import('@/views/system/post/index.vue'),
+      name: 'Post',
+      meta: {
+        title: '岗位管理',
+        icon: 'ep:postcard'
+      }
+    }
+  ]
+}
+```
+
+### 9. 权限控制
+
+#### 9.1 路由权限
+
+在 `src/permission.ts` 中实现路由守卫。
+
+#### 9.2 按钮权限
+
+使用 `v-hasPermi` 指令:
+
+```vue
+<el-button v-hasPermi="['system:post:create']" type="primary">
+  新增
+</el-button>
+```
+
+### 10. 国际化
+
+使用 Vue I18n 实现国际化:
+
+```typescript
+// src/locales/zh-CN.ts
+export default {
+  common: {
+    add: '新增',
+    edit: '编辑',
+    delete: '删除'
+  }
+}
+```
+
+```vue
+<template>
+  <el-button>{{ t('common.add') }}</el-button>
+</template>
+
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+</script>
+```
+
+## 代码规范
+
+### 命名规范
+
+- **文件名**: 使用 PascalCase (如 `PostForm.vue`) 或 kebab-case (如 `post-form.vue`)
+- **组件名**: 使用 PascalCase (如 `PostForm`)
+- **变量/函数**: 使用 camelCase (如 `getPostList`)
+- **常量**: 使用 UPPER_SNAKE_CASE (如 `API_BASE_URL`)
+- **类型/接口**: 使用 PascalCase (如 `PostVO`)
+
+### 注释规范
+
+```typescript
+/**
+ * 查询岗位分页列表
+ * @param params 查询参数
+ * @returns 分页数据
+ */
+export const getPostPage = (params: PostPageReqVO) => {
+  return request.get({ url: '/system/post/page', params })
+}
+```
+
+### 代码格式化
+
+- 使用 ESLint + Prettier 进行代码格式化
+- 运行 `pnpm lint:eslint` 检查代码
+- 运行 `pnpm lint:format` 格式化代码
+
+## 开发流程
+
+1. **启动开发服务器**: `pnpm dev` 或 `pnpm dev-server`
+2. **代码检查**: `pnpm lint:eslint`
+3. **代码格式化**: `pnpm lint:format`
+4. **类型检查**: `pnpm ts:check`
+5. **构建生产**: `pnpm build:prod`
+
+## 参考示例
+
+- **分页列表**: `src/views/system/post/index.vue`
+- **树形列表**: `src/views/system/dept/index.vue`
+- **高性能列表**: `src/views/system/area/index.vue`
+- **详情弹窗**: `src/views/infra/apiAccessLog/ApiAccessLogDetail.vue`
+
+## 注意事项
+
+1. 所有 API 请求必须通过 `src/config/axios` 封装的 request 方法
+2. 组件样式必须添加 `scoped` 避免样式污染
+3. 优先使用 UnoCSS 原子类，减少自定义样式
+4. 使用 TypeScript 严格模式，确保类型安全
+5. 遵循 Vue 3 Composition API 最佳实践
+6. 使用 Pinia 进行状态管理，避免使用 Vuex
+7. 图标使用 Iconify，格式: `ep:icon-name` (Element Plus 图标)
+8. 多租户场景下，注意 tenant-id 的处理
