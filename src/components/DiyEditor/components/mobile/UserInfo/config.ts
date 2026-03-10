@@ -1,10 +1,10 @@
 import { ComponentStyle, DiyComponent } from '@/components/DiyEditor/util'
 
-/** 用户订单属性 */
-export interface UserOrderProperty {
+/** 用户信息属性 */
+export interface UserInfoProperty {
   // 标题
   title: string
-  // 所有的订单项
+  // 菜单项
   items: {
     icon: string
     name: string
@@ -16,16 +16,15 @@ export interface UserOrderProperty {
 
 // 定义组件
 export const component = {
-  id: 'UserOrder',
-  name: '用户订单',
-  icon: 'ep:list',
+  id: 'UserInfo',
+  name: '用户信息',
+  icon: 'ep:user',
   property: {
-    title: '我的订单',
+    title: '我的信息',
     items: [
-      { icon: 'ep:wallet', name: '待付款', url: '' },
-      { icon: 'ep:box', name: '待发货', url: '' },
-      { icon: 'ep:van', name: '待收货', url: '' },
-      { icon: 'ep:circle-check', name: '已完成', url: '' }
+      { icon: 'ep:setting', name: '我的设置', url: '' },
+      { icon: 'ep:location', name: '地址管理', url: '' },
+      { icon: 'ep:user-filled', name: '平台合伙人', url: '' }
     ],
     style: {
       bgType: 'color',
@@ -43,4 +42,4 @@ export const component = {
       borderBottomLeftRadius: 8
     } as ComponentStyle
   }
-} as DiyComponent<UserOrderProperty>
+} as DiyComponent<UserInfoProperty>

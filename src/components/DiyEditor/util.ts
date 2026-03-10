@@ -109,7 +109,7 @@ export const PAGE_LIBS = [
   {
     name: '用户组件',
     extended: true,
-    components: ['UserCard', 'UserOrder', 'UserWallet', 'UserCoupon']
+    components: ['UserCard', 'UserCardPro', 'UserOrder', 'UserInfo', 'UserWallet', 'UserCoupon']
   },
   {
     name: '营销组件',

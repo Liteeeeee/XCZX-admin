@@ -24,13 +24,13 @@
 </template>
 
 <script setup lang="ts">
-import { UserOrderProperty } from './config'
+import { UserInfoProperty } from './config'
 import { useVModel } from '@vueuse/core'
 
-// 用户订单属性面板
-defineOptions({ name: 'UserOrderProperty' })
+// 用户信息属性面板
+defineOptions({ name: 'UserInfoProperty' })
 
-const props = defineProps<{ modelValue: UserOrderProperty }>()
+const props = defineProps<{ modelValue: UserInfoProperty }>()
 const emit = defineEmits(['update:modelValue'])
 const formData = useVModel(props, 'modelValue', emit)
 </script>
