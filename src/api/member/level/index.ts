@@ -4,11 +4,12 @@ export interface LevelVO {
   id: number
   name: string
   experience: number
-  value: number
+  level: number
   discountPercent: number
   icon: string
-  bgUrl: string
+  backgroundUrl: string
   status: number
+  benefitIds: number[]
 }
 
 // 查询会员等级列表

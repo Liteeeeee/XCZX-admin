@@ -62,6 +62,26 @@
           </el-form-item>
         </el-col>
       </el-row>
+      <el-form-item label="等级权益">
+        <el-select
+          v-model="formData.benefitIds"
+          multiple
+          placeholder="请选择等级权益"
+          class="!w-full"
+          @change="handleBenefitChange"
+          :disabled="formType === 'create'"
+        >
+          <el-option
+            v-for="item in benefitList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+        <div v-if="formType === 'create'" class="text-12px text-gray-400">
+          请先保存会员等级后再进行权益绑定
+        </div>
+      </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="formData.status">
           <el-radio
@@ -83,6 +103,8 @@
 <script setup lang="ts">
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import * as LevelApi from '@/api/member/level'
+import * as BenefitApi from '@/api/member/benefit'
+import * as LevelRightsApi from '@/api/member/levelRights'
 import { CommonStatusEnum } from '@/utils/constants'
 
 /** 会员等级表单 **/
@@ -95,6 +117,7 @@ const dialogVisible = ref(false) // 弹窗的是否展示
 const dialogTitle = ref('') // 弹窗的标题
 const formLoading = ref(false) // 表单的加载中：1）修改时的数据加载；2）提交的按钮禁用
 const formType = ref('') // 表单的类型：create - 新增；update - 修改
+const benefitList = ref<BenefitApi.BenefitVO[]>([]) // 权益列表
 const formData = ref({
   id: undefined,
   name: undefined,
@@ -103,7 +126,8 @@ const formData = ref({
   discountPercent: undefined,
   icon: undefined,
   backgroundUrl: undefined,
-  status: CommonStatusEnum.ENABLE
+  status: CommonStatusEnum.ENABLE,
+  benefitIds: []
 })
 const formRules = reactive({
   name: [{ required: true, message: '等级名称不能为空', trigger: 'blur' }],
@@ -113,6 +137,7 @@ const formRules = reactive({
   status: [{ required: true, message: '状态不能为空', trigger: 'change' }]
 })
 const formRef = ref() // 表单 Ref
+const rightsAssociationMap = ref<Record<number, any>>({}) // 权益ID -> 关联记录映射
 
 /** 打开弹窗 */
 const open = async (type: string, id?: number) => {
@@ -120,17 +145,78 @@ const open = async (type: string, id?: number) => {
   dialogTitle.value = t('action.' + type)
   formType.value = type
   resetForm()
-  // 修改时，设置数据
-  if (id) {
-    formLoading.value = true
-    try {
-      formData.value = await LevelApi.getLevel(id)
-    } finally {
-      formLoading.value = false
+  rightsAssociationMap.value = {}
+  formLoading.value = true
+  try {
+    // 1. 加载权益列表（用于下拉选择）
+    const benefitPage = await BenefitApi.getBenefitPage({ pageSize: 100 })
+    benefitList.value = benefitPage.list
+
+    // 2. 修改时，加载等级详情和已关联的权益
+    if (id) {
+      const [levelData, rightsList] = await Promise.all([
+        LevelApi.getLevel(id),
+        LevelRightsApi.getLevelRightsListByLevel(id)
+      ])
+      formData.value = {
+        ...levelData,
+        benefitIds: (rightsList || []).map((item: any) => {
+          rightsAssociationMap.value[item.rightsId] = item
+          return item.rightsId
+        })
+      }
     }
+  } finally {
+    formLoading.value = false
   }
 }
 defineExpose({ open }) // 提供 open 方法，用于打开弹窗
+
+/** 处理权益选择变化 */
+const handleBenefitChange = async (val: number[]) => {
+  if (formType.value === 'create' || !formData.value.id) return
+
+  const oldBenefitIds = Object.keys(rightsAssociationMap.value).map(Number)
+  const newBenefitIds = val
+
+  // 1. 找出新增的权益
+  const added = newBenefitIds.filter((id) => !oldBenefitIds.includes(id))
+  // 2. 找出删除的权益
+  const removed = oldBenefitIds.filter((id) => !newBenefitIds.includes(id))
+
+  try {
+    // 处理新增
+    for (const rightsId of added) {
+      const res = await LevelRightsApi.createLevelRights({
+        memberLevelId: formData.value.id as any,
+        level: formData.value.level as any,
+        rightsIds: [rightsId],
+        status: 0 // 默认启用
+      })
+      // 保存新创建的关联记录，用于后续删除
+      // 注意：由于是批量接口，后端可能返回的是列表或单个对象，这里需要根据实际情况处理
+      // 假设返回的是新创建的关联记录对象（包含 id）
+      rightsAssociationMap.value[rightsId] = res
+    }
+
+    // 处理删除
+    for (const rightsId of removed) {
+      await LevelRightsApi.deleteLevelRights({
+        memberLevelId: formData.value.id as any,
+        rightsIds: [rightsId]
+      })
+      delete rightsAssociationMap.value[rightsId]
+    }
+  } catch (error) {
+    // 如果失败了，建议重新加载一下数据
+    const rightsList = await LevelRightsApi.getLevelRightsListByLevel(formData.value.id)
+    rightsAssociationMap.value = {}
+    formData.value.benefitIds = (rightsList || []).map((item: any) => {
+      rightsAssociationMap.value[item.memberRightsId] = item
+      return item.memberRightsId
+    })
+  }
+}
 
 /** 提交表单 */
 const emit = defineEmits(['success']) // 定义 success 事件，用于操作成功后的回调
@@ -143,8 +229,9 @@ const submitForm = async () => {
   formLoading.value = true
   try {
     const data = formData.value as unknown as LevelApi.LevelVO
+    let levelId = data.id
     if (formType.value === 'create') {
-      await LevelApi.createLevel(data)
+      levelId = await LevelApi.createLevel(data)
       message.success(t('common.createSuccess'))
     } else {
       await LevelApi.updateLevel(data)
@@ -168,7 +255,8 @@ const resetForm = () => {
     discountPercent: undefined,
     icon: undefined,
     backgroundUrl: undefined,
-    status: CommonStatusEnum.ENABLE
+    status: CommonStatusEnum.ENABLE,
+    benefitIds: []
   }
   formRef.value?.resetFields()
 }
