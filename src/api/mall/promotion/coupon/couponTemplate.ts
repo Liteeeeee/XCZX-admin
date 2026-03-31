@@ -73,7 +73,7 @@ export function getCouponTemplatePage(params: PageParam) {
   })
 }
 
-// 获得优惠劵模板分页
+// 获得优惠劵模板列表（按 ids）
 export function getCouponTemplateList(ids: number[]): Promise<CouponTemplateVO[]> {
   return request.get({
     url: `/promotion/coupon-template/list?ids=${ids}`

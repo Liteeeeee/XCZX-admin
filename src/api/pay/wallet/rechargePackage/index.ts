@@ -6,6 +6,8 @@ export interface WalletRechargePackageVO {
   payPrice: number
   bonusPrice: number
   status: number
+  couponTemplateId?: number
+  vipOnly?: boolean
 }
 
 // 查询套餐充值列表

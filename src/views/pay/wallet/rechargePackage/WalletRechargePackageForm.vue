@@ -16,6 +16,25 @@
       <el-form-item label="赠送金额(元)" prop="bonusPrice">
         <el-input-number v-model="formData.bonusPrice" :min="0" :precision="2" :step="0.01" />
       </el-form-item>
+      <el-form-item label="关联优惠券" prop="couponTemplateId">
+        <el-select
+          v-model="formData.couponTemplateId"
+          class="w-80"
+          clearable
+          filterable
+          placeholder="请选择优惠券模板"
+        >
+          <el-option
+            v-for="item in couponTemplateList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="会员专属" prop="vipOnly">
+        <el-checkbox v-model="formData.vipOnly" label="仅会员可购买" />
+      </el-form-item>
       <el-form-item label="开启状态" prop="status">
         <el-radio-group v-model="formData.status">
           <el-radio
@@ -36,8 +55,10 @@
 </template>
 <script setup lang="ts">
 import * as WalletRechargePackageApi from '@/api/pay/wallet/rechargePackage'
+import * as CouponTemplateApi from '@/api/mall/promotion/coupon/couponTemplate'
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import { fenToYuan, yuanToFen } from '@/utils'
+import { CommonStatusEnum } from '@/utils/constants'
 const { t } = useI18n() // 国际化
 const message = useMessage() // 消息弹窗
 
@@ -45,13 +66,16 @@ const dialogVisible = ref(false) // 弹窗的是否展示
 const dialogTitle = ref('') // 弹窗的标题
 const formLoading = ref(false) // 表单的加载中：1）修改时的数据加载；2）提交的按钮禁用
 const formType = ref('') // 表单的类型：create - 新增；update - 修改
-const formData = ref({
+const formData = ref<any>({
   id: undefined,
   name: undefined,
   payPrice: undefined,
   bonusPrice: undefined,
+  couponTemplateId: undefined,
+  vipOnly: false,
   status: undefined
 })
+const couponTemplateList = ref<CouponTemplateApi.CouponTemplateVO[]>([])
 const formRules = reactive({
   name: [{ required: true, message: '套餐名不能为空', trigger: 'blur' }],
   payPrice: [{ required: true, message: '支付金额不能为空', trigger: 'blur' }],
@@ -60,19 +84,34 @@ const formRules = reactive({
 })
 const formRef = ref() // 表单 Ref
 
+const getCouponTemplateList = async () => {
+  try {
+    const data = await CouponTemplateApi.getCouponTemplatePage({
+      pageNo: 1,
+      pageSize: 200,
+      status: CommonStatusEnum.ENABLE
+    } as any)
+    couponTemplateList.value = data.list
+  } catch (e) {
+    message.error('获取优惠券模板列表失败')
+  }
+}
+
 /** 打开弹窗 */
 const open = async (type: string, id?: number) => {
   dialogVisible.value = true
   dialogTitle.value = t('action.' + type)
   formType.value = type
   resetForm()
+  await getCouponTemplateList()
   // 修改时，设置数据
   if (id) {
     formLoading.value = true
     try {
       formData.value = await WalletRechargePackageApi.getWalletRechargePackage(id)
-      formData.value.payPrice = fenToYuan(formData.value.payPrice)
-      formData.value.bonusPrice = fenToYuan(formData.value.bonusPrice)
+      formData.value.payPrice = Number(fenToYuan(formData.value.payPrice ?? 0))
+      formData.value.bonusPrice = Number(fenToYuan(formData.value.bonusPrice ?? 0))
+      formData.value.vipOnly = Boolean(formData.value.vipOnly)
     } finally {
       formLoading.value = false
     }
@@ -90,7 +129,7 @@ const submitForm = async () => {
   // 提交请求
   formLoading.value = true
   try {
-    const data = { ...formData.value }
+    const data = { ...formData.value } as any
     data.payPrice = yuanToFen(data.payPrice)
     data.bonusPrice = yuanToFen(data.bonusPrice)
     if (formType.value === 'create') {
@@ -115,6 +154,8 @@ const resetForm = () => {
     name: undefined,
     payPrice: undefined,
     bonusPrice: undefined,
+    couponTemplateId: undefined,
+    vipOnly: false,
     status: undefined
   }
   formRef.value?.resetFields()
