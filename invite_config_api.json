@@ -1,0 +1,447 @@
+{
+  "paths": {
+    "/admin-api/member-invite/config/page": {
+      "get": {
+        "tags": [
+          "管理后台 - 会员邀请配置"
+        ],
+        "summary": "获得邀请配置分页",
+        "operationId": "getConfigPage",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "配置名称",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "配置名称",
+              "example": "默认配置"
+            },
+            "example": "默认配置"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "状态",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "description": "状态",
+              "example": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "页码，从 1 开始",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "description": "页码，从 1 开始",
+              "example": 1,
+              "minimum": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页条数，最大值为 200",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "description": "每页条数，最大值为 200",
+              "example": 10,
+              "maximum": 200,
+              "minimum": 1
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonResultPageResultMemberInviteConfigRespVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin-api/member-invite/config/get": {
+      "get": {
+        "tags": [
+          "管理后台 - 会员邀请配置"
+        ],
+        "summary": "获得邀请配置",
+        "operationId": "getConfig_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonResultMemberInviteConfigRespVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin-api/member-invite/config/create": {
+      "post": {
+        "tags": [
+          "管理后台 - 会员邀请配置"
+        ],
+        "summary": "创建邀请配置",
+        "operationId": "createConfig",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberInviteConfigCreateReqVO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonResultLong"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin-api/member-invite/config/update": {
+      "put": {
+        "tags": [
+          "管理后台 - 会员邀请配置"
+        ],
+        "summary": "更新邀请配置",
+        "operationId": "updateConfig_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberInviteConfigUpdateReqVO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin-api/member-invite/config/delete": {
+      "delete": {
+        "tags": [
+          "管理后台 - 会员邀请配置"
+        ],
+        "summary": "删除邀请配置",
+        "operationId": "deleteConfig",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "schemas": {
+    "CommonResultPageResultMemberInviteConfigRespVO": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/components/schemas/PageResultMemberInviteConfigRespVO"
+        }
+      }
+    },
+    "CommonResultMemberInviteConfigRespVO": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/components/schemas/MemberInviteConfigRespVO"
+        }
+      }
+    },
+    "MemberInviteConfigCreateReqVO": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "配置名称",
+          "example": "默认配置"
+        },
+        "firstExperience": {
+          "type": "integer",
+          "format": "int32",
+          "description": "第一邀请人成长值",
+          "example": 50
+        },
+        "otherExperience": {
+          "type": "integer",
+          "format": "int32",
+          "description": "其他邀请人成长值",
+          "example": 20
+        },
+        "firstUpgradeEnable": {
+          "type": "boolean",
+          "description": "第一邀请人是否允许升级",
+          "example": true
+        },
+        "upgradeLevel": {
+          "type": "integer",
+          "format": "int32",
+          "description": "触发强制升级的会员等级（1=初级，2=中级...）",
+          "example": 1
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态（0-禁用，1-启用）",
+          "example": 1
+        }
+      },
+      "required": [
+        "firstExperience",
+        "firstUpgradeEnable",
+        "name",
+        "otherExperience",
+        "status",
+        "upgradeLevel"
+      ]
+    },
+    "CommonResultLong": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "MemberInviteConfigUpdateReqVO": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "配置名称",
+          "example": "默认配置"
+        },
+        "firstExperience": {
+          "type": "integer",
+          "format": "int32",
+          "description": "第一邀请人成长值",
+          "example": 50
+        },
+        "otherExperience": {
+          "type": "integer",
+          "format": "int32",
+          "description": "其他邀请人成长值",
+          "example": 20
+        },
+        "firstUpgradeEnable": {
+          "type": "boolean",
+          "description": "第一邀请人是否允许升级",
+          "example": true
+        },
+        "upgradeLevel": {
+          "type": "integer",
+          "format": "int32",
+          "description": "触发强制升级的会员等级（1=初级，2=中级...）",
+          "example": 1
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态（0-禁用，1-启用）",
+          "example": 1
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "编号",
+          "example": 1
+        }
+      },
+      "required": [
+        "firstExperience",
+        "firstUpgradeEnable",
+        "id",
+        "name",
+        "otherExperience",
+        "status",
+        "upgradeLevel"
+      ]
+    },
+    "CommonResultBoolean": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "type": "boolean"
+        }
+      }
+    },
+    "PageResultMemberInviteConfigRespVO": {
+      "type": "object",
+      "description": "分页结果",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "description": "总量"
+        },
+        "list": {
+          "type": "array",
+          "description": "数据",
+          "items": {
+            "$ref": "#/components/schemas/MemberInviteConfigRespVO"
+          }
+        }
+      },
+      "required": [
+        "list",
+        "total"
+      ]
+    },
+    "MemberInviteConfigRespVO": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "配置名称",
+          "example": "默认配置"
+        },
+        "firstExperience": {
+          "type": "integer",
+          "format": "int32",
+          "description": "第一邀请人成长值",
+          "example": 50
+        },
+        "otherExperience": {
+          "type": "integer",
+          "format": "int32",
+          "description": "其他邀请人成长值",
+          "example": 20
+        },
+        "firstUpgradeEnable": {
+          "type": "boolean",
+          "description": "第一邀请人是否允许升级",
+          "example": true
+        },
+        "upgradeLevel": {
+          "type": "integer",
+          "format": "int32",
+          "description": "触发强制升级的会员等级（1=初级，2=中级...）",
+          "example": 1
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态",
+          "example": 1
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "编号",
+          "example": 1
+        }
+      },
+      "required": [
+        "firstExperience",
+        "firstUpgradeEnable",
+        "id",
+        "name",
+        "otherExperience",
+        "status",
+        "upgradeLevel"
+      ]
+    }
+  }
+}
