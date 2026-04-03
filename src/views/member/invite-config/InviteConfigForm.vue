@@ -25,6 +25,13 @@
       <el-form-item label="触发升级的会员等级" prop="upgradeLevel">
         <el-input-number v-model="formData.upgradeLevel" :min="1" placeholder="请输入会员等级" />
       </el-form-item>
+      <el-form-item label="奖励发放方式" prop="rewardType">
+        <el-radio-group v-model="formData.rewardType">
+          <el-radio v-for="item in rewardTypeOptions" :key="item.value" :label="item.value">
+            {{ item.label }}
+          </el-radio>
+        </el-radio-group>
+      </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="formData.status">
           <el-radio
@@ -63,14 +70,20 @@ const formData = ref({
   otherExperience: undefined,
   firstUpgradeEnable: true,
   upgradeLevel: undefined,
+  rewardType: 1,
   status: CommonStatusEnum.ENABLE
 })
+const rewardTypeOptions = [
+  { label: '注册即发放', value: 1 },
+  { label: '开通会员后发放', value: 2 }
+]
 const formRules = reactive({
   name: [{ required: true, message: '配置名称不能为空', trigger: 'blur' }],
   firstExperience: [{ required: true, message: '第一邀请人成长值不能为空', trigger: 'blur' }],
   otherExperience: [{ required: true, message: '其他邀请人成长值不能为空', trigger: 'blur' }],
   firstUpgradeEnable: [{ required: true, message: '第一邀请人是否允许升级不能为空', trigger: 'change' }],
   upgradeLevel: [{ required: true, message: '触发强制升级的会员等级不能为空', trigger: 'blur' }],
+  rewardType: [{ required: true, message: '奖励发放方式不能为空', trigger: 'change' }],
   status: [{ required: true, message: '状态不能为空', trigger: 'change' }]
 })
 const formRef = ref()
@@ -127,6 +140,7 @@ const resetForm = () => {
     otherExperience: undefined,
     firstUpgradeEnable: true,
     upgradeLevel: undefined,
+    rewardType: 1,
     status: CommonStatusEnum.ENABLE
   }
   formRef.value?.resetFields()

@@ -8,6 +8,7 @@ export interface MemberInviteConfigVO {
   firstUpgradeEnable: boolean
   upgradeLevel: number
   status: number
+  rewardType: number
 }
 
 // 查询会员邀请配置分页

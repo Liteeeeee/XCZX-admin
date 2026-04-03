@@ -62,6 +62,11 @@
         </template>
       </el-table-column>
       <el-table-column label="触发升级等级" align="center" prop="upgradeLevel" />
+      <el-table-column label="奖励发放方式" align="center" prop="rewardType">
+        <template #default="scope">
+          {{ getRewardTypeLabel(scope.row.rewardType) }}
+        </template>
+      </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
         <template #default="scope">
           <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="scope.row.status" />
@@ -121,6 +126,14 @@ const queryParams = reactive({
   status: undefined
 })
 const queryFormRef = ref() // 搜索的表单
+const rewardTypeLabelMap = {
+  1: '注册即发放',
+  2: '开通会员后发放'
+}
+
+const getRewardTypeLabel = (rewardType: number) => {
+  return rewardTypeLabelMap[rewardType] || '未知'
+}
 
 /** 查询列表 */
 const getList = async () => {
