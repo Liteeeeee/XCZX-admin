@@ -105,7 +105,9 @@ const formData = ref<ProductSpuApi.Spu>({
       weight: 0, // 商品重量
       volume: 0, // 商品体积
       firstBrokeragePrice: 0, // 一级分销的佣金
-      secondBrokeragePrice: 0 // 二级分销的佣金
+      secondBrokeragePrice: 0, // 二级分销的佣金
+      brokeragePercent: 0, // 分佣比例（单位：%）
+      brokerageEnabled: true // 是否启用分销
     }
   ],
   description: '', // 商品详情
@@ -168,6 +170,14 @@ const submitForm = async () => {
     deepCopyFormData.skus!.forEach((item) => {
       // 给sku name赋值（使用商品名称作为 SKU 名称）
       item.name = deepCopyFormData.name
+      // 单独设置分销类型：使用分佣比例，清空固定返佣金额，并强制启用分销
+      if (deepCopyFormData.subCommissionType) {
+        item.brokerageEnabled = true
+        item.brokeragePercent ??= 0
+        item.brokeragePercent = Number((Number(item.brokeragePercent) || 0).toFixed(1))
+        item.firstBrokeragePrice = 0
+        item.secondBrokeragePrice = 0
+      }
       // sku相关价格元转分
       item.price = convertToInteger(item.price)
       item.marketPrice = convertToInteger(item.marketPrice)

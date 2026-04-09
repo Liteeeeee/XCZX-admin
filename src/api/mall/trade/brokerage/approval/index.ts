@@ -40,6 +40,15 @@ export interface BrokerageAuditRecordVO {
   createTime: Date
 }
 
+export interface AppBrokerageApplyResubmitReqVO {
+  applyId: number
+  occupation: string
+  idCardNo: string
+  idCardFrontUrl: string
+  idCardBackUrl: string
+  additionalInfo?: string
+}
+
 export const getBrokerageApplyPage = async (params: any) => {
   return await request.get({ url: `/trade/brokerage-apply/page`, params })
 }
@@ -56,3 +65,9 @@ export const getBrokerageApplyAuditRecordPage = async (params: any) => {
   return await request.get({ url: `/trade/brokerage-apply/audit-record/page`, params })
 }
 
+export const resubmitBrokerageApply = async (data: AppBrokerageApplyResubmitReqVO) => {
+  return await request.put({
+    url: import.meta.env.VITE_BASE_URL + `/app-api/trade/brokerage-apply/resubmit`,
+    data
+  })
+}

@@ -22,6 +22,8 @@ export interface Sku {
   volume?: number // 商品体积，单位：m^3 平米
   firstBrokeragePrice?: number | string // 一级分销的佣金
   secondBrokeragePrice?: number | string // 二级分销的佣金
+  brokeragePercent?: number | string // 分佣比例（单位：%）
+  brokerageEnabled?: boolean // 是否启用分销
   salesCount?: number // 商品销量
 }
 

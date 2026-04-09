@@ -100,24 +100,13 @@
       </template>
     </el-table-column>
     <template v-if="formData!.subCommissionType">
-      <el-table-column align="center" label="一级返佣(元)" min-width="168">
+      <el-table-column align="center" label="分佣比例(%)" min-width="168">
         <template #default="{ row }">
           <el-input-number
-            v-model="row.firstBrokeragePrice"
+            v-model="row.brokeragePercent"
             :min="0"
-            :precision="2"
-            :step="0.1"
-            class="w-100%"
-            controls-position="right"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="二级返佣(元)" min-width="168">
-        <template #default="{ row }">
-          <el-input-number
-            v-model="row.secondBrokeragePrice"
-            :min="0"
-            :precision="2"
+            :max="100"
+            :precision="1"
             :step="0.1"
             class="w-100%"
             controls-position="right"
@@ -209,14 +198,9 @@
       </template>
     </el-table-column>
     <template v-if="formData!.subCommissionType">
-      <el-table-column align="center" label="一级返佣(元)" min-width="80">
+      <el-table-column align="center" label="分佣比例(%)" min-width="80">
         <template #default="{ row }">
-          {{ row.firstBrokeragePrice }}
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="二级返佣(元)" min-width="80">
-        <template #default="{ row }">
-          {{ row.secondBrokeragePrice }}
+          {{ row.brokeragePercent }}
         </template>
       </el-table-column>
     </template>
@@ -328,7 +312,9 @@ const skuList = ref<Sku[]>([
     weight: 0, // 商品重量
     volume: 0, // 商品体积
     firstBrokeragePrice: 0, // 一级分销的佣金
-    secondBrokeragePrice: 0 // 二级分销的佣金
+    secondBrokeragePrice: 0, // 二级分销的佣金
+    brokeragePercent: 0, // 分佣比例（单位：%）
+    brokerageEnabled: true // 是否启用分销
   }
 ]) // 批量添加时的临时数据
 
@@ -461,7 +447,9 @@ const generateTableData = (propertyList: any[]) => {
       weight: 0,
       volume: 0,
       firstBrokeragePrice: 0,
-      secondBrokeragePrice: 0
+      secondBrokeragePrice: 0,
+      brokeragePercent: 0,
+      brokerageEnabled: true
     }
     // 如果存在属性相同的 sku 则不做处理
     const index = formData.value!.skus!.findIndex(
@@ -537,7 +525,9 @@ watch(
           weight: 0,
           volume: 0,
           firstBrokeragePrice: 0,
-          secondBrokeragePrice: 0
+          secondBrokeragePrice: 0,
+          brokeragePercent: 0,
+          brokerageEnabled: true
         }
       ]
     }

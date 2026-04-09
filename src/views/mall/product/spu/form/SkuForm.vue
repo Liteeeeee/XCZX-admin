@@ -163,6 +163,8 @@ const changeSubCommissionType = () => {
   for (const item of formData.skus!) {
     item.firstBrokeragePrice = 0
     item.secondBrokeragePrice = 0
+    item.brokeragePercent = 0
+    item.brokerageEnabled = true
   }
 }
 
@@ -183,7 +185,9 @@ const onChangeSpec = () => {
       weight: 0,
       volume: 0,
       firstBrokeragePrice: 0,
-      secondBrokeragePrice: 0
+      secondBrokeragePrice: 0,
+      brokeragePercent: 0,
+      brokerageEnabled: true
     }
   ]
 }

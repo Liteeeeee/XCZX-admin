@@ -100,6 +100,9 @@
               >
                 驳回
               </el-button>
+              <el-button v-if="scope.row.status === 2" link type="warning" @click="openResubmitForm(scope.row.id)">
+                重新审批
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -236,11 +239,13 @@
   </Dialog>
 
   <BrokerageApplyRejectForm ref="rejectFormRef" @success="getApplyList" />
+  <BrokerageApplyResubmitForm ref="resubmitFormRef" @success="getApplyList" />
 </template>
 
 <script setup lang="ts">
 import * as BrokerageApplyApi from '@/api/mall/trade/brokerage/approval'
 import BrokerageApplyRejectForm from './components/BrokerageApplyRejectForm.vue'
+import BrokerageApplyResubmitForm from './components/BrokerageApplyResubmitForm.vue'
 
 defineOptions({ name: 'TradeBrokerageApproval' })
 
@@ -313,6 +318,11 @@ const openRejectForm = (id: number) => {
   rejectFormRef.value.open(id)
 }
 
+const resubmitFormRef = ref()
+const openResubmitForm = (id: number) => {
+  resubmitFormRef.value.open(id)
+}
+
 const detailVisible = ref(false)
 const detailLoading = ref(false)
 const detailData = ref<BrokerageApplyApi.BrokerageApplyVO>()
@@ -377,4 +387,3 @@ watch(
   { immediate: true }
 )
 </script>
-
