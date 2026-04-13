@@ -1,6 +1,12 @@
 <template>
   <Dialog title="审核" v-model="dialogVisible">
-    <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px" v-loading="formLoading">
+    <el-form
+      ref="formRef"
+      :model="formData"
+      :rules="formRules"
+      label-width="100px"
+      v-loading="formLoading"
+    >
       <el-form-item label="拒绝原因" prop="auditReason">
         <el-input v-model="formData.auditReason" type="textarea" placeholder="请输入拒绝原因" />
       </el-form-item>
@@ -19,7 +25,10 @@ const message = useMessage()
 
 const dialogVisible = ref(false)
 const formLoading = ref(false)
-const formData = ref({
+const formData = ref<{
+  id: number | undefined
+  auditReason: string | undefined
+}>({
   id: undefined,
   auditReason: undefined
 })
@@ -43,9 +52,9 @@ const submitForm = async () => {
   formLoading.value = true
   try {
     await BrokerageApplyApi.auditBrokerageApply({
-      id: formData.value.id as unknown as number,
+      id: formData.value.id as number,
       status: 2,
-      auditReason: formData.value.auditReason as unknown as string
+      auditReason: formData.value.auditReason as string
     })
     message.success('驳回成功')
     dialogVisible.value = false
@@ -63,4 +72,3 @@ const resetForm = () => {
   formRef.value?.resetFields()
 }
 </script>
-

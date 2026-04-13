@@ -5,11 +5,11 @@
   >
     <div class="relative mx-auto h-full flex">
       <div
-        :class="`${prefixCls}__left flex-1 bg-gray-500 bg-opacity-20 relative p-30px lt-xl:hidden overflow-x-hidden overflow-y-auto`"
+        :class="`${prefixCls}__left flex-1 relative p-30px lt-xl:hidden overflow-x-hidden overflow-y-auto`"
       >
         <!-- 左上角的 logo + 系统标题 -->
         <div class="relative flex items-center text-white">
-          <img alt="" class="mr-10px h-48px w-48px" src="@/assets/imgs/logo.png" />
+          <img alt="" class="mr-10px h-48px w-48px" src="@/assets/imgs/brand-logo.svg" />
           <span class="text-20px font-bold">{{ underlineToHump(appStore.getTitle) }}</span>
         </div>
         <!-- 左边的背景图 + 欢迎语 -->
@@ -19,7 +19,6 @@
             enter-active-class="animate__animated animate__bounceInLeft"
             tag="div"
           >
-            <img key="1" alt="" class="w-350px" src="@/assets/svgs/login-box-bg.svg" />
             <div key="2" class="text-3xl text-white">{{ t('login.welcome') }}</div>
             <div key="3" class="mt-5 text-14px font-normal text-white">
               {{ t('login.message') }}
@@ -36,7 +35,7 @@
           style="color: var(--el-text-color-primary);"
         >
           <div class="flex items-center at-2xl:hidden at-xl:hidden">
-            <img alt="" class="mr-10px h-48px w-48px" src="@/assets/imgs/logo.png" />
+            <img alt="" class="mr-10px h-48px w-48px" src="@/assets/imgs/brand-logo.svg" />
             <span class="text-20px font-bold" >{{ underlineToHump(appStore.getTitle) }}</span>
           </div>
           <div class="flex items-center justify-end space-x-10px h-48px">
@@ -116,6 +115,17 @@ $prefix-cls: #{$namespace}-login;
 
   .el-card {
     background-color: var(--login-bg-color);
+  }
+}
+</style>
+
+<style lang="scss" scoped>
+@use '@/styles/variables.scss' as *;
+$prefix-cls: #{$namespace}-login;
+
+.#{$prefix-cls} {
+  &__left {
+    background: linear-gradient(135deg, rgba(30, 63, 28, 1) 0%, rgba(30, 63, 28, 0.92) 100%);
   }
 }
 </style>

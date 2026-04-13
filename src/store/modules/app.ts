@@ -42,6 +42,11 @@ interface AppState {
 
 export const useAppStore = defineStore('app', {
   state: (): AppState => {
+    const themeVersion = 'xiancaozhenxuan-1'
+    if (wsCache.get('themeVersion') !== themeVersion) {
+      wsCache.delete(CACHE_KEY.THEME)
+      wsCache.set('themeVersion', themeVersion)
+    }
     return {
       userInfo: 'userInfo', // 登录信息存储字段-建议每个项目换一个字段，避免与其他项目冲突
       sizeMap: ['default', 'large', 'small'],
@@ -303,6 +308,7 @@ export const useAppStore = defineStore('app', {
     setTheme(theme: ThemeTypes) {
       this.theme = Object.assign(this.theme, theme)
       wsCache.set(CACHE_KEY.THEME, this.theme)
+      wsCache.set('themeVersion', 'xiancaozhenxuan-1')
     },
     setCssVarTheme() {
       for (const key in this.theme) {
