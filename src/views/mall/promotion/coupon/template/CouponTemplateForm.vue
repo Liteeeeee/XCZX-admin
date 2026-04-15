@@ -158,7 +158,7 @@
           v-model="formData.validTimes"
           :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 2, 1, 23, 59, 59)]"
           type="datetimerange"
-          value-format="x"
+          format="YYYY-MM-DD HH:mm:ss"
         />
       </el-form-item>
       <el-form-item
@@ -202,6 +202,7 @@ import {
 import SpuShowcase from '@/views/mall/product/spu/components/SpuShowcase.vue'
 import ProductCategorySelect from '@/views/mall/product/category/components/ProductCategorySelect.vue'
 import { convertToInteger, formatToFraction } from '@/utils'
+import { dateUtil } from '@/utils/dateUtil'
 
 defineOptions({ name: 'CouponTemplateForm' })
 
@@ -254,6 +255,39 @@ const formRules = reactive({
   productCategoryIds: [{ required: true, message: '分类不能为空', trigger: 'blur' }]
 })
 const formRef = ref() // 表单 Ref
+const toTimestampMs = (value: unknown): number | undefined => {
+  if (value === undefined || value === null || value === '') return undefined
+  if (typeof value === 'number') return value
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    if (trimmed === '') return undefined
+    if (/^-?\d+$/.test(trimmed)) return Number(trimmed)
+    const match = trimmed.match(
+      /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2}))?$/
+    )
+    if (match) {
+      const year = Number(match[1])
+      const month = Number(match[2])
+      const day = Number(match[3])
+      const hour = Number(match[4] ?? 0)
+      const minute = Number(match[5] ?? 0)
+      const second = Number(match[6] ?? 0)
+      const date = new Date(year, month - 1, day, hour, minute, second, 0)
+      const ts = date.getTime()
+      return Number.isFinite(ts) ? ts : undefined
+    }
+    const ts = dateUtil(trimmed).valueOf()
+    return Number.isFinite(ts) ? ts : undefined
+  }
+  const ts = dateUtil(value as any).valueOf()
+  return Number.isFinite(ts) ? ts : undefined
+}
+const toDate = (value: unknown): Date | undefined => {
+  const ts = toTimestampMs(value)
+  if (ts === undefined) return undefined
+  const date = new Date(ts)
+  return Number.isFinite(date.getTime()) ? date : undefined
+}
 
 /** 打开弹窗 */
 const open = async (type: string, id?: number) => {
@@ -266,6 +300,10 @@ const open = async (type: string, id?: number) => {
     formLoading.value = true
     try {
       const data = await CouponTemplateApi.getCouponTemplate(id)
+      const validStartTime = toTimestampMs((data as any).validStartTime)
+      const validEndTime = toTimestampMs((data as any).validEndTime)
+      const validStartDate = toDate((data as any).validStartTime)
+      const validEndDate = toDate((data as any).validEndTime)
       formData.value = {
         ...data,
         discountPrice: formatToFraction(data.discountPrice),
@@ -273,7 +311,12 @@ const open = async (type: string, id?: number) => {
           data.discountPercent !== undefined ? data.discountPercent / 10.0 : undefined,
         discountLimitPrice: formatToFraction(data.discountLimitPrice),
         usePrice: formatToFraction(data.usePrice),
-        validTimes: [data.validStartTime, data.validEndTime]
+        validStartTime,
+        validEndTime,
+        validTimes:
+          validStartDate !== undefined && validEndDate !== undefined
+            ? [validStartDate, validEndDate]
+            : []
       }
       // 获得商品范围
       await getProductScope()
@@ -294,6 +337,11 @@ const submitForm = async () => {
   // 提交请求
   formLoading.value = true
   try {
+    const isDateValidity = formData.value.validityType === CouponTemplateValidityTypeEnum.DATE.type
+    const validStartTime = isDateValidity ? toTimestampMs(formData.value.validTimes?.[0]) : undefined
+    const validEndTime = isDateValidity ? toTimestampMs(formData.value.validTimes?.[1]) : undefined
+    const validTimes =
+      validStartTime !== undefined && validEndTime !== undefined ? [validStartTime, validEndTime] : []
     const data = {
       ...formData.value,
       discountPrice: convertToInteger(formData.value.discountPrice),
@@ -303,14 +351,9 @@ const submitForm = async () => {
           : undefined,
       discountLimitPrice: convertToInteger(formData.value.discountLimitPrice),
       usePrice: convertToInteger(formData.value.usePrice),
-      validStartTime:
-        formData.value.validTimes && formData.value.validTimes.length === 2
-          ? formData.value.validTimes[0]
-          : undefined,
-      validEndTime:
-        formData.value.validTimes && formData.value.validTimes.length === 2
-          ? formData.value.validTimes[1]
-          : undefined,
+      validStartTime,
+      validEndTime,
+      validTimes,
       totalCount: formData.value.takeType === 1 ? formData.value.totalCount : -1,
       takeLimitCount: formData.value.takeType === 1 ? formData.value.takeLimitCount : -1
     } as unknown as CouponTemplateApi.CouponTemplateVO

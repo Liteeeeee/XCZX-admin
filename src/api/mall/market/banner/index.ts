@@ -9,6 +9,8 @@ export interface BannerVO {
   position: number
   sort: number
   memo: string
+  bannerCode?: string
+  extra?: string
 }
 
 // 查询Banner管理列表

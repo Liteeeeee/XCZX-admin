@@ -14,6 +14,11 @@
           </el-form-item>
         </el-col>
         <el-col :span="24">
+          <el-form-item label="标识" prop="bannerCode">
+            <el-input v-model="formData.bannerCode" placeholder="请输入 Banner 标识" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
           <el-form-item label="图片" prop="picUrl">
             <UploadImg v-model="formData.picUrl" />
           </el-form-item>
@@ -59,6 +64,17 @@
             <el-input v-model="formData.memo" placeholder="请输入描述" type="textarea" />
           </el-form-item>
         </el-col>
+        <el-col :span="24">
+          <el-form-item label="扩展字段" prop="extra">
+            <el-input
+              v-model="formData.extra"
+              placeholder="请输入扩展字段"
+              type="textarea"
+              :maxlength="2048"
+              show-word-limit
+            />
+          </el-form-item>
+        </el-col>
       </el-row>
     </el-form>
     <template #footer>
@@ -81,12 +97,14 @@ const formType = ref('') // 表单的类型：create - 新增；update - 修改
 const formData = ref({
   id: undefined,
   title: undefined,
+  bannerCode: undefined,
   picUrl: undefined,
   status: 0,
   position: 1,
   url: undefined,
   sort: 0,
-  memo: undefined
+  memo: undefined,
+  extra: undefined
 })
 const formRules = reactive({
   title: [{ required: true, message: 'Banner 标题不能为空', trigger: 'blur' }],
@@ -94,7 +112,8 @@ const formRules = reactive({
   status: [{ required: true, message: '活动状态不能为空', trigger: 'blur' }],
   position: [{ required: true, message: '位置不能为空', trigger: 'blur' }],
   sort: [{ required: true, message: '排序不能为空', trigger: 'blur' }],
-  url: [{ required: true, message: '跳转地址不能为空', trigger: 'blur' }]
+  url: [{ required: true, message: '跳转地址不能为空', trigger: 'blur' }],
+  extra: [{ max: 2048, message: '扩展字段长度不能超过 2048', trigger: 'blur' }]
 })
 const formRef = ref() // 表单 Ref
 
@@ -147,12 +166,14 @@ const resetForm = () => {
   formData.value = {
     id: undefined,
     title: undefined,
+    bannerCode: undefined,
     picUrl: undefined,
     status: 0,
     position: 1,
     url: undefined,
     sort: 0,
-    memo: undefined
+    memo: undefined,
+    extra: undefined
   }
   formRef.value?.resetFields()
 }
