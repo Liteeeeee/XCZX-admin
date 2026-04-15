@@ -16,13 +16,15 @@ import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons-ng'
 import UnoCSS from 'unocss/vite'
 
-export function createVitePlugins() {
+export function createVitePlugins(isBuild: boolean, env: Record<string, any>) {
   const root = process.cwd()
 
   // 路径查找
   function pathResolve(dir: string) {
     return resolve(root, '.', dir)
   }
+
+  const enableCompression = env?.VITE_BUILD_COMPRESS === 'true'
 
   return [
     Vue(),
@@ -66,10 +68,13 @@ export function createVitePlugins() {
       resolvers: [ElementPlusResolver()],
       globs: ["src/components/**/**.{vue, md}", '!src/components/DiyEditor/components/mobile/**']
     }),
-    EslintPlugin({
-      cache: false,
-      include: ['src/**/*.vue', 'src/**/*.ts', 'src/**/*.tsx'] // 检查的文件
-    }),
+    !isBuild
+      ? EslintPlugin({
+          cache: true,
+          cacheLocation: pathResolve('node_modules/.cache/eslint'),
+          include: ['src/**/*.vue', 'src/**/*.ts', 'src/**/*.tsx']
+        })
+      : undefined,
     VueI18nPlugin({
       runtimeOnly: true,
       compositionOnly: true,
@@ -79,14 +84,16 @@ export function createVitePlugins() {
       iconDirs: [pathResolve('src/assets/svgs')],
       symbolId: 'icon-[dir]-[name]',
     }),
-    viteCompression({
-      verbose: true, // 是否在控制台输出压缩结果
-      disable: false, // 是否禁用
-      threshold: 10240, // 体积大于 threshold 才会被压缩,单位 b
-      algorithm: 'gzip', // 压缩算法,可选 [ 'gzip' , 'brotliCompress' ,'deflate' , 'deflateRaw']
-      ext: '.gz', // 生成的压缩包后缀
-      deleteOriginFile: false //压缩后是否删除源文件
-    }),
+    enableCompression
+      ? viteCompression({
+          verbose: true,
+          disable: false,
+          threshold: 10240,
+          algorithm: 'gzip',
+          ext: '.gz',
+          deleteOriginFile: false
+        })
+      : undefined,
     ViteEjsPlugin(),
     topLevelAwait({
       // https://juejin.cn/post/7152191742513512485
@@ -95,5 +102,5 @@ export function createVitePlugins() {
       // The function to generate import names of top-level await promise in each chunk module
       promiseImportName: (i) => `__tla_${i}`
     })
-  ]
+  ].filter(Boolean)
 }
