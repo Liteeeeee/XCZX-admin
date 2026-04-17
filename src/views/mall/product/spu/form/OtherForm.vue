@@ -13,9 +13,6 @@
       <el-input-number
         v-model="formData.giveIntegral"
         :min="0"
-        :max="0"
-        :controls="false"
-        disabled
         placeholder="请输入赠送积分"
         class="w-80!"
       />
@@ -70,7 +67,6 @@ watch(
       return
     }
     copyValueToTarget(formData.value, data)
-    formData.value.giveIntegral = 0
   },
   {
     immediate: true
@@ -84,7 +80,6 @@ const validate = async () => {
   try {
     await unref(formRef)?.validate()
     // 校验通过更新数据
-    formData.value.giveIntegral = 0
     Object.assign(props.propFormData, formData.value)
   } catch (e) {
     message.error('【其它设置】不完善，请填写相关信息')

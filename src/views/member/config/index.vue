@@ -43,9 +43,8 @@
               v-model="formData.pointTradeGivePoint"
               placeholder="请输入 1 元赠送多少积分"
               :min="0"
-              :max="0"
-              :controls="false"
-              disabled
+              :step="1"
+              :precision="0"
             />
             <el-text class="w-full" size="small" type="info">
               下单支付金额按比例赠送积分（实际支付 1 元赠送多少积分）
@@ -98,7 +97,6 @@ const onSubmit = async () => {
   // 提交请求
   formLoading.value = true
   try {
-    formData.value.pointTradeGivePoint = 0
     const data = formData.value as unknown as ConfigApi.ConfigVO
     await ConfigApi.saveConfig(data)
     message.success(t('common.updateSuccess'))
@@ -116,7 +114,6 @@ const getConfig = async () => {
       return
     }
     formData.value = data
-    formData.value.pointTradeGivePoint = 0
   } finally {
   }
 }
