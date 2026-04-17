@@ -6,6 +6,7 @@ export interface LevelVO {
   experience: number
   level: number
   discountPercent: number
+  pointGivePercent: number
   icon: string
   backgroundUrl: string
   status: number

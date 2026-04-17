@@ -52,6 +52,20 @@
       </el-row>
       <el-row>
         <el-col :span="12">
+          <el-form-item label="赠送积分(%)" prop="pointGivePercent">
+            <el-input-number
+              v-model="formData.pointGivePercent"
+              :min="0"
+              :max="100"
+              :precision="0"
+              placeholder="请输入赠送积分(%)"
+              class="!w-240px"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
           <el-form-item label="等级图标">
             <UploadImg v-model="formData.icon" />
           </el-form-item>
@@ -124,6 +138,7 @@ const formData = ref({
   experience: undefined,
   level: undefined,
   discountPercent: undefined,
+  pointGivePercent: undefined,
   icon: undefined,
   backgroundUrl: undefined,
   status: CommonStatusEnum.ENABLE,
@@ -134,6 +149,7 @@ const formRules = reactive({
   experience: [{ required: true, message: '升级经验不能为空', trigger: 'blur' }],
   level: [{ required: true, message: '等级不能为空', trigger: 'blur' }],
   discountPercent: [{ required: true, message: '享受折扣不能为空', trigger: 'blur' }],
+  pointGivePercent: [{ required: true, message: '赠送积分(%)不能为空', trigger: 'blur' }],
   status: [{ required: true, message: '状态不能为空', trigger: 'change' }]
 })
 const formRef = ref() // 表单 Ref
@@ -253,6 +269,7 @@ const resetForm = () => {
     experience: undefined,
     level: undefined,
     discountPercent: undefined,
+    pointGivePercent: undefined,
     icon: undefined,
     backgroundUrl: undefined,
     status: CommonStatusEnum.ENABLE,
