@@ -164,7 +164,7 @@ const changeSubCommissionType = () => {
     item.firstBrokeragePrice = 0
     item.secondBrokeragePrice = 0
     item.brokeragePercent = 0
-    item.brokerageEnabled = true
+    item.brokerageEnabled = false
   }
 }
 
@@ -187,7 +187,7 @@ const onChangeSpec = () => {
       firstBrokeragePrice: 0,
       secondBrokeragePrice: 0,
       brokeragePercent: 0,
-      brokerageEnabled: true
+      brokerageEnabled: false
     }
   ]
 }

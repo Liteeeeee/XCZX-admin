@@ -65,7 +65,11 @@
           <el-table-column label="申请人编号" align="left" prop="userId" min-width="100px" />
           <el-table-column label="省份ID" align="left" prop="provinceId" min-width="90px" />
           <el-table-column label="城市ID" align="left" prop="cityId" min-width="90px" />
-          <el-table-column label="职业" align="left" prop="occupation" min-width="120px" />
+          <el-table-column label="职业" align="left" prop="occupation" min-width="120px">
+            <template #default="scope">
+              {{ getDictLabel(DICT_TYPE.OCCUPATION, scope.row.occupation) }}
+            </template>
+          </el-table-column>
           <el-table-column label="补充信息" align="left" prop="additionalInfo" min-width="140px" />
           <el-table-column label="重提次数" align="left" prop="resubmitCount" min-width="80px" />
           <el-table-column label="状态" align="left" prop="status" min-width="80px">
@@ -202,7 +206,9 @@
       <el-descriptions-item label="申请人编号">{{ detailData?.userId }}</el-descriptions-item>
       <el-descriptions-item label="省份ID">{{ detailData?.provinceId }}</el-descriptions-item>
       <el-descriptions-item label="城市ID">{{ detailData?.cityId }}</el-descriptions-item>
-      <el-descriptions-item label="职业">{{ detailData?.occupation }}</el-descriptions-item>
+      <el-descriptions-item label="职业">
+        {{ getDictLabel(DICT_TYPE.OCCUPATION, detailData?.occupation) }}
+      </el-descriptions-item>
       <el-descriptions-item label="状态">
         <el-tag v-if="detailData" :type="getApplyStatusTagType(detailData.status)">
           {{ getApplyStatusLabel(detailData.status) }}
@@ -210,23 +216,17 @@
       </el-descriptions-item>
       <el-descriptions-item label="身份证号">{{ detailData?.idCardNo }}</el-descriptions-item>
       <el-descriptions-item label="补充信息">{{ detailData?.additionalInfo }}</el-descriptions-item>
-      <el-descriptions-item label="身份证正面">
-        <el-image
-          v-if="detailData?.idCardFrontUrl"
-          style="width: 120px; height: 80px"
-          :src="detailData.idCardFrontUrl"
-          :preview-src-list="[detailData.idCardFrontUrl]"
-          fit="cover"
-        />
-      </el-descriptions-item>
-      <el-descriptions-item label="身份证反面">
-        <el-image
-          v-if="detailData?.idCardBackUrl"
-          style="width: 120px; height: 80px"
-          :src="detailData.idCardBackUrl"
-          :preview-src-list="[detailData.idCardBackUrl]"
-          fit="cover"
-        />
+      <el-descriptions-item v-if="qualificationImages.length" label="资质图片" :span="2">
+        <div class="flex flex-wrap gap-12px">
+          <el-image
+            v-for="url in qualificationImages"
+            :key="url"
+            style="width: 120px; height: 80px"
+            :src="url"
+            :preview-src-list="qualificationImages"
+            fit="cover"
+          />
+        </div>
       </el-descriptions-item>
       <el-descriptions-item label="拒绝原因">{{ detailData?.refuseReason }}</el-descriptions-item>
       <el-descriptions-item label="审核人">{{ detailData?.auditUserName }}</el-descriptions-item>
@@ -244,6 +244,7 @@
 
 <script setup lang="ts">
 import * as BrokerageApplyApi from '@/api/mall/trade/brokerage/approval'
+import { DICT_TYPE, getDictLabel } from '@/utils/dict'
 import BrokerageApplyRejectForm from './components/BrokerageApplyRejectForm.vue'
 import BrokerageApplyResubmitForm from './components/BrokerageApplyResubmitForm.vue'
 
@@ -326,6 +327,44 @@ const openResubmitForm = (id: number) => {
 const detailVisible = ref(false)
 const detailLoading = ref(false)
 const detailData = ref<BrokerageApplyApi.BrokerageApplyVO>()
+const qualificationImages = computed<string[]>(() => {
+  const cdnBaseUrl = 'https://xiancao.oss-cn-beijing.aliyuncs.com'
+  const normalizeImageUrl = (url: string): string => {
+    const trimmedUrl = url.trim()
+    if (!trimmedUrl) return ''
+    if (/^https?:\/\//i.test(trimmedUrl)) return trimmedUrl
+    if (trimmedUrl.startsWith('/admin-api') || trimmedUrl.startsWith('/app-api')) {
+      return `${window.location.origin}${trimmedUrl}`
+    }
+    // 纯对象 Key（如 20260416/xxx.png）按 CDN 域名拼接
+    if (!trimmedUrl.startsWith('/')) {
+      return `${cdnBaseUrl}/${trimmedUrl}`
+    }
+    return `${import.meta.env.VITE_BASE_URL}${trimmedUrl.startsWith('/') ? '' : '/'}${trimmedUrl}`
+  }
+
+  const parseAdditionalInfo = (value: unknown): Record<string, unknown> | undefined => {
+    if (!value) return undefined
+    if (typeof value === 'object') return value as Record<string, unknown>
+    if (typeof value !== 'string') return undefined
+    try {
+      const parsed = JSON.parse(value)
+      // 兼容后端返回二次序列化字符串的情况
+      if (typeof parsed === 'string') return parseAdditionalInfo(parsed)
+      return typeof parsed === 'object' && parsed ? (parsed as Record<string, unknown>) : undefined
+    } catch {
+      return undefined
+    }
+  }
+
+  const additionalInfo = detailData.value?.additionalInfo
+  const parsedInfo = parseAdditionalInfo(additionalInfo)
+  if (!parsedInfo) return []
+  if (!Array.isArray(parsedInfo.qualificationImages)) return []
+  return parsedInfo.qualificationImages
+    .map((item: unknown) => (typeof item === 'string' ? normalizeImageUrl(item) : ''))
+    .filter((item) => !!item)
+})
 const openDetail = async (id: number) => {
   detailVisible.value = true
   detailLoading.value = true

@@ -314,7 +314,7 @@ const skuList = ref<Sku[]>([
     firstBrokeragePrice: 0, // 一级分销的佣金
     secondBrokeragePrice: 0, // 二级分销的佣金
     brokeragePercent: 0, // 分佣比例（单位：%）
-    brokerageEnabled: true // 是否启用分销
+    brokerageEnabled: false // 是否启用分销
   }
 ]) // 批量添加时的临时数据
 
@@ -449,7 +449,7 @@ const generateTableData = (propertyList: any[]) => {
       firstBrokeragePrice: 0,
       secondBrokeragePrice: 0,
       brokeragePercent: 0,
-      brokerageEnabled: true
+      brokerageEnabled: false
     }
     // 如果存在属性相同的 sku 则不做处理
     const index = formData.value!.skus!.findIndex(
@@ -527,7 +527,7 @@ watch(
           firstBrokeragePrice: 0,
           secondBrokeragePrice: 0,
           brokeragePercent: 0,
-          brokerageEnabled: true
+          brokerageEnabled: false
         }
       ]
     }

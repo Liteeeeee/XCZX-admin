@@ -107,7 +107,7 @@ const formData = ref<ProductSpuApi.Spu>({
       firstBrokeragePrice: 0, // 一级分销的佣金
       secondBrokeragePrice: 0, // 二级分销的佣金
       brokeragePercent: 0, // 分佣比例（单位：%）
-      brokerageEnabled: true // 是否启用分销
+      brokerageEnabled: false // 是否启用分销
     }
   ],
   description: '', // 商品详情
@@ -172,11 +172,16 @@ const submitForm = async () => {
       item.name = deepCopyFormData.name
       // 单独设置分销类型：使用分佣比例，清空固定返佣金额，并强制启用分销
       if (deepCopyFormData.subCommissionType) {
-        item.brokerageEnabled = true
         item.brokeragePercent ??= 0
         item.brokeragePercent = Number((Number(item.brokeragePercent) || 0).toFixed(1))
+        item.brokerageEnabled = item.brokeragePercent > 0
         item.firstBrokeragePrice = 0
         item.secondBrokeragePrice = 0
+      } else {
+        item.brokerageEnabled = false
+        item.firstBrokeragePrice = 0
+        item.secondBrokeragePrice = 0
+        item.brokeragePercent = 0
       }
       // sku相关价格元转分
       item.price = convertToInteger(item.price)
