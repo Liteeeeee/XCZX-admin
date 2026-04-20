@@ -6,7 +6,7 @@ export interface AppVO {
   name: string
   status: number
   remark: string
-  payNotifyUrl: string
+  orderNotifyUrl: string
   refundNotifyUrl: string
   transferNotifyUrl: string
   merchantId: number
@@ -18,7 +18,7 @@ export interface AppPageReqVO extends PageParam {
   name?: string
   status?: number
   remark?: string
-  payNotifyUrl?: string
+  orderNotifyUrl?: string
   refundNotifyUrl?: string
   transferNotifyUrl?: string
   merchantName?: string

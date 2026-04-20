@@ -243,7 +243,7 @@ const queryParams = reactive({
   name: undefined,
   status: undefined,
   remark: undefined,
-  payNotifyUrl: undefined,
+  orderNotifyUrl: undefined,
   refundNotifyUrl: undefined,
   createTime: []
 })
