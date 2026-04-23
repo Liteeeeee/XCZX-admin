@@ -1,7 +1,7 @@
 const fs = require('fs');
 const http = require('http');
 
-http.get('http://192.168.110.11:48080/v3/api-docs', (res) => {
+http.get('http://192.168.110.44:48080/v3/api-docs', (res) => {
   let data = '';
   res.on('data', (chunk) => { data += chunk; });
   res.on('end', () => {

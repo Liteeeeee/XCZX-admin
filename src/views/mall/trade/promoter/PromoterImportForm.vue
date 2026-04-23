@@ -38,7 +38,6 @@
 import { ref, reactive } from 'vue'
 import * as PromoterApi from '@/api/mall/trade/promoter'
 import { ElMessageBox } from 'element-plus'
-import download from '@/utils/download'
 
 const message = useMessage() // 消息弹窗
 
@@ -102,6 +101,8 @@ const resetForm = () => {
 /** 下载模板操作 */
 const importTemplate = async () => {
   const res = await PromoterApi.importPromoterTemplate()
-  download.excel(res, '推广员导入模版.xls')
+  if (res) {
+    window.open(res, '_blank')
+  }
 }
 </script>

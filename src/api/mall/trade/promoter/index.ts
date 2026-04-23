@@ -42,7 +42,7 @@ export const deletePromoter = async (id: number) => {
 
 // 获得推广员导入模板
 export const importPromoterTemplate = async () => {
-  return await request.download({ url: `/trade/promoter/get-import-template` })
+  return await request.get({ url: `/trade/promoter/get-import-template` })
 }
 
 // 导入推广员列表
