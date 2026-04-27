@@ -50,46 +50,55 @@ export const importPromoter = async (data: { fileUrl: string, reason?: string, b
   return await request.post({ url: `/trade/promoter/import`, data })
 }
 
-// ======================= 推广员负责地区 =======================
+// ======================= 推广团队 =======================
 
-export interface PromoterAreaVO {
+export interface PromoterTeamVO {
   id?: number
-  promoterId?: number
-  mobile?: string
-  name?: string
-  areaId: number
-  areaName: string
-  parentId?: number
-  parentName?: string
-  status?: number
+  teamCode?: string
+  name: string
+  leaderId?: number
+  leaderName?: string
+  leaderMobile?: string
+  status: number
   memberCount?: number
-  description?: string
+  remark?: string
   createTime?: string
   updateTime?: string
 }
 
-// 分页查询推广员地区（Leader管理）
-export const getPromoterAreaPage = async (params?: any) => {
-  return await request.get({ url: `/trade/promoter/area/page`, params })
+// 分页查询团队
+export const getPromoterTeamPage = async (params?: any) => {
+  return await request.get({ url: `/trade/promoter-team/page`, params })
 }
 
-// 添加推广员负责地区
-export const createPromoterArea = async (data: any) => {
-  return await request.post({ url: `/trade/promoter/area/add`, data })
+// 查询团队详情
+export const getPromoterTeam = async (id: number) => {
+  return await request.get({ url: `/trade/promoter-team/get?id=` + id })
 }
 
-// 删除推广员负责地区
-export const deletePromoterArea = async (id: number) => {
-  return await request.delete({ url: `/trade/promoter/area/delete?id=` + id })
+// 获取团队列表
+export const getPromoterTeamList = async () => {
+  return await request.get({ url: `/trade/promoter-team/list` })
 }
 
-// 清空推广区域负责人
-export const clearPromoterAreaLeader = async (id: number) => {
-  return await request.put({ url: `/trade/promoter/area/clear-leader?id=` + id })
+// 创建团队
+export const createPromoterTeam = async (data: PromoterTeamVO) => {
+  return await request.post({ url: `/trade/promoter-team/create`, data })
 }
 
-// 更新推广员负责地区状态（如果是虚拟字段，后端可能暂无此接口）
-export const updatePromoterAreaStatus = async (id: number, status: number) => {
-  return await request.put({ url: `/trade/promoter/area/update-status`, data: { id, status } })
+// 更新团队
+export const updatePromoterTeam = async (data: PromoterTeamVO) => {
+  return await request.put({ url: `/trade/promoter-team/update`, data })
 }
+
+// 删除团队
+export const deletePromoterTeam = async (id: number) => {
+  return await request.delete({ url: `/trade/promoter-team/delete?id=` + id })
+}
+
+// 设置团队负责人
+export const setPromoterTeamLeader = async (id: number, leaderId: number) => {
+  return await request.put({ url: `/trade/promoter-team/set-leader`, data: { id, leaderId } })
+}
+
 

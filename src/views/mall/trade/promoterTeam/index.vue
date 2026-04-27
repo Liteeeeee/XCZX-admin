@@ -1,6 +1,5 @@
 <template>
   <ContentWrap>
-    <!-- 搜索工作栏 -->
     <el-form
       class="-mb-15px"
       :model="queryParams"
@@ -8,28 +7,19 @@
       :inline="true"
       label-width="68px"
     >
-      <el-form-item label="姓名" prop="name">
-        <el-input
-          v-model="queryParams.name"
-          placeholder="请输入姓名"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
-        />
-      </el-form-item>
-      <el-form-item label="手机号" prop="mobile">
-        <el-input
-          v-model="queryParams.mobile"
-          placeholder="请输入手机号"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
-        />
-      </el-form-item>
       <el-form-item label="团队编号" prop="teamCode">
         <el-input
           v-model="queryParams.teamCode"
           placeholder="请输入团队编号"
+          clearable
+          @keyup.enter="handleQuery"
+          class="!w-240px"
+        />
+      </el-form-item>
+      <el-form-item label="团队名称" prop="name">
+        <el-input
+          v-model="queryParams.name"
+          placeholder="请输入团队名称"
           clearable
           @keyup.enter="handleQuery"
           class="!w-240px"
@@ -48,42 +38,44 @@
       <el-form-item>
         <el-button @click="handleQuery"><Icon icon="ep:search" class="mr-5px" /> 搜索</el-button>
         <el-button @click="resetQuery"><Icon icon="ep:refresh" class="mr-5px" /> 重置</el-button>
-        <el-button
-          type="primary"
-          plain
-          @click="openForm('create')"
-          v-hasPermi="['trade:promoter:create']"
-        >
-          <Icon icon="ep:plus" class="mr-5px" /> 新增人员
+        <el-button type="primary" plain @click="openForm('create')" v-hasPermi="['trade:promoter-team:create']">
+          <Icon icon="ep:plus" class="mr-5px" /> 创建团队
         </el-button>
         <el-button
           type="warning"
           plain
-          @click="openImportForm"
+          @click="importFormRef.open()"
           v-hasPermi="['trade:promoter:import']"
         >
-          <Icon icon="ep:upload" class="mr-5px" /> 导入人员
+          <Icon icon="ep:upload" class="mr-5px" /> 导入团队人员
         </el-button>
       </el-form-item>
     </el-form>
   </ContentWrap>
 
-  <!-- 列表 -->
   <ContentWrap>
     <el-table v-loading="loading" :data="list">
-      <el-table-column label="编号" align="center" prop="id" />
-      <el-table-column label="所属团队编号" align="center" prop="teamCode">
+      <el-table-column label="团队编号" align="center" prop="teamCode" />
+      <el-table-column label="团队名称" align="center" prop="name" />
+      <el-table-column label="团队负责人" align="center" prop="leaderName">
         <template #default="scope">
-          {{ scope.row.teamCode || '无' }}
+          <span v-if="scope.row.leaderName">{{ scope.row.leaderName }} ({{ scope.row.leaderMobile }})</span>
+          <span v-else class="text-gray-400">无</span>
         </template>
       </el-table-column>
-      <el-table-column label="姓名" align="center" prop="name" />
-      <el-table-column label="手机号" align="center" prop="mobile" />
+      <el-table-column label="成员数量" align="center" prop="memberCount" />
       <el-table-column label="状态" align="center" prop="status">
         <template #default="scope">
-          <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="scope.row.status" />
+          <el-switch
+            v-model="scope.row.status"
+            :active-value="0"
+            :inactive-value="1"
+            @change="handleStatusChange(scope.row)"
+            v-hasPermi="['trade:promoter-team:update']"
+          />
         </template>
       </el-table-column>
+      <el-table-column label="备注" align="center" prop="remark" show-overflow-tooltip />
       <el-table-column
         label="创建时间"
         align="center"
@@ -91,28 +83,28 @@
         :formatter="dateFormatter"
         width="180"
       />
-      <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="操作" align="center" width="150" fixed="right">
         <template #default="scope">
           <el-button
             link
             type="primary"
-            @click="openForm('update', scope.row.id)"
-            v-hasPermi="['trade:promoter:update']"
+            @click="openForm('update', scope.row)"
+            v-hasPermi="['trade:promoter-team:update']"
           >
-            修改地区/信息
+            编辑
           </el-button>
           <el-button
             link
             type="danger"
             @click="handleDelete(scope.row.id)"
-            v-hasPermi="['trade:promoter:delete']"
+            v-hasPermi="['trade:promoter-team:delete']"
           >
             删除
           </el-button>
         </template>
       </el-table-column>
     </el-table>
+
     <!-- 分页 -->
     <Pagination
       :total="total"
@@ -122,9 +114,7 @@
     />
   </ContentWrap>
 
-  <!-- 表单弹窗：添加/修改 -->
-  <PromoterForm ref="formRef" @success="getList" />
-  <!-- 表单弹窗：导入 -->
+  <TeamForm ref="formRef" @success="getList" />
   <PromoterImportForm ref="importFormRef" @success="getList" />
 </template>
 
@@ -133,34 +123,36 @@ import { ref, reactive, onMounted } from 'vue'
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import { dateFormatter } from '@/utils/formatTime'
 import * as PromoterApi from '@/api/mall/trade/promoter'
-import PromoterForm from './PromoterForm.vue'
-import PromoterImportForm from './PromoterImportForm.vue'
+import TeamForm from './TeamForm.vue'
+import PromoterImportForm from '../promoter/PromoterImportForm.vue'
 
-defineOptions({ name: 'Promoter' })
+defineOptions({ name: 'PromoterTeam' })
 
 const message = useMessage() // 消息弹窗
 const { t } = useI18n() // 国际化
 
 const loading = ref(true) // 列表的加载中
-const total = ref(0) // 列表的总页数
-const list = ref([]) // 列表的数据
+const total = ref(0) // 列表的总条数
+const list = ref([]) // 列表数据
 const queryParams = reactive({
   pageNo: 1,
-  pageSize: 20,
-  name: undefined,
-  mobile: undefined,
+  pageSize: 10,
   teamCode: undefined,
+  name: undefined,
   status: undefined
 })
 const queryFormRef = ref() // 搜索的表单
+const importFormRef = ref() // 导入表单 Ref
 
 /** 查询列表 */
 const getList = async () => {
   loading.value = true
   try {
-    const data = await PromoterApi.getPromoterPage(queryParams)
-    list.value = data.list
-    total.value = data.total
+    const data = await PromoterApi.getPromoterTeamPage(queryParams)
+    list.value = data.list || []
+    total.value = data.total || 0
+  } catch (error) {
+    console.error('获取团队列表失败', error)
   } finally {
     loading.value = false
   }
@@ -174,20 +166,32 @@ const handleQuery = () => {
 
 /** 重置按钮操作 */
 const resetQuery = () => {
-  queryFormRef.value.resetFields()
+  queryFormRef.value?.resetFields()
   handleQuery()
 }
 
 /** 添加/修改操作 */
 const formRef = ref()
-const openForm = (type: string, id?: number) => {
-  formRef.value.open(type, id)
+const openForm = (type: string, row?: any) => {
+  formRef.value.open(type, row?.id)
 }
 
-/** 导入操作 */
-const importFormRef = ref()
-const openImportForm = () => {
-  importFormRef.value.open()
+/** 修改状态操作 */
+const handleStatusChange = async (row: any) => {
+  try {
+    const text = row.status === 0 ? '启用' : '关闭'
+    await message.confirm(`确认要${text}团队"${row.name}"吗?`)
+    // 调用更新接口，只更新状态，其他字段保持原样
+    await PromoterApi.updatePromoterTeam({
+      id: row.id,
+      name: row.name,
+      status: row.status
+    })
+    message.success(text + '成功')
+  } catch {
+    // 异常或取消时，恢复状态
+    row.status = row.status === 0 ? 1 : 0
+  }
 }
 
 /** 删除按钮操作 */
@@ -196,7 +200,7 @@ const handleDelete = async (id: number) => {
     // 删除的二次确认
     await message.delConfirm()
     // 发起删除
-    await PromoterApi.deletePromoter(id)
+    await PromoterApi.deletePromoterTeam(id)
     message.success(t('common.delSuccess'))
     // 刷新列表
     await getList()

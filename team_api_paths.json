@@ -1,0 +1,178 @@
+[
+  {
+    "path": "/admin-api/trade/promoter/update",
+    "method": "put",
+    "summary": "更新推广员",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/transfer-team",
+    "method": "put",
+    "summary": "转移推广员到新团队",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/disable",
+    "method": "put",
+    "summary": "禁用推广员",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter-team/update",
+    "method": "put",
+    "summary": "更新团队",
+    "tags": [
+      "管理后台 - 推广团队"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter-team/set-leader",
+    "method": "put",
+    "summary": "设置团队负责人",
+    "tags": [
+      "管理后台 - 推广团队"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/import",
+    "method": "post",
+    "summary": "导入推广员列表",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/create",
+    "method": "post",
+    "summary": "创建推广员",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/bind",
+    "method": "post",
+    "summary": "创建推广绑定关系",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter-team/create",
+    "method": "post",
+    "summary": "创建团队（自动生成6位编号）",
+    "tags": [
+      "管理后台 - 推广团队"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/statistics",
+    "method": "get",
+    "summary": "获取推广数据统计",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/statistics/today",
+    "method": "get",
+    "summary": "获取今日总统计",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/statistics/team-page",
+    "method": "get",
+    "summary": "获取团队业绩统计（分页）",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/statistics/personal-page",
+    "method": "get",
+    "summary": "获取指定推广员的个人业绩统计（分页）",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/page",
+    "method": "get",
+    "summary": "分页查询推广员",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/get",
+    "method": "get",
+    "summary": "获取推广员详情",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/get-import-template",
+    "method": "get",
+    "summary": "获得推广员导入模板",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter/bind/page",
+    "method": "get",
+    "summary": "分页查询推广绑定关系",
+    "tags": [
+      "管理后台 - 推广员"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter-team/page",
+    "method": "get",
+    "summary": "分页查询团队",
+    "tags": [
+      "管理后台 - 推广团队"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter-team/list",
+    "method": "get",
+    "summary": "获取团队列表",
+    "tags": [
+      "管理后台 - 推广团队"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter-team/get",
+    "method": "get",
+    "summary": "获取团队详情",
+    "tags": [
+      "管理后台 - 推广团队"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter-team/get-by-code",
+    "method": "get",
+    "summary": "根据团队编号获取团队",
+    "tags": [
+      "管理后台 - 推广团队"
+    ]
+  },
+  {
+    "path": "/admin-api/trade/promoter-team/delete",
+    "method": "delete",
+    "summary": "删除团队",
+    "tags": [
+      "管理后台 - 推广团队"
+    ]
+  }
+]

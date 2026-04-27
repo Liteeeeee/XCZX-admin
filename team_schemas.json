@@ -1,0 +1,1006 @@
+{
+  "PromoterUpdateReqVO": {
+    "type": "object",
+    "description": "管理后台 - 推广员更新请求 VO",
+    "properties": {
+      "id": {
+        "type": "integer",
+        "format": "int64",
+        "description": "推广员ID",
+        "example": 1
+      },
+      "mobile": {
+        "type": "string",
+        "description": "手机号",
+        "example": "13800138000"
+      },
+      "name": {
+        "type": "string",
+        "description": "姓名",
+        "example": "张三"
+      },
+      "provinceId": {
+        "type": "integer",
+        "format": "int32",
+        "description": "省ID",
+        "example": 1
+      },
+      "provinceName": {
+        "type": "string",
+        "description": "省名称",
+        "example": "广东省"
+      },
+      "cityId": {
+        "type": "integer",
+        "format": "int32",
+        "description": "市ID",
+        "example": 1
+      },
+      "cityName": {
+        "type": "string",
+        "description": "市名称",
+        "example": "广州市"
+      },
+      "status": {
+        "type": "integer",
+        "format": "int32",
+        "description": "状态",
+        "example": 1
+      },
+      "remark": {
+        "type": "string",
+        "description": "备注",
+        "example": "备注信息"
+      }
+    },
+    "required": [
+      "id",
+      "mobile"
+    ]
+  },
+  "PromoterTeamUpdateReqVO": {
+    "type": "object",
+    "description": "管理后台 - 推广���队更新请求 VO",
+    "properties": {
+      "id": {
+        "type": "integer",
+        "format": "int64",
+        "description": "团队ID",
+        "example": 1
+      },
+      "name": {
+        "type": "string",
+        "description": "团队名称",
+        "example": "华南团队"
+      },
+      "leaderId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "负责人ID",
+        "example": 1
+      },
+      "status": {
+        "type": "integer",
+        "format": "int32",
+        "description": "状态",
+        "example": 1
+      },
+      "remark": {
+        "type": "string",
+        "description": "备注",
+        "example": "备注信息"
+      }
+    },
+    "required": [
+      "id",
+      "name",
+      "status"
+    ]
+  },
+  "AppPromoterBindReqVO": {
+    "type": "object",
+    "description": "应用 App - 绑定推广员 Request VO",
+    "properties": {
+      "promoterId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "推广员编号",
+        "example": 1024
+      },
+      "provinceId": {
+        "type": "integer",
+        "format": "int32",
+        "description": "省份ID",
+        "example": 1
+      },
+      "cityId": {
+        "type": "integer",
+        "format": "int32",
+        "description": "城市ID",
+        "example": 1
+      }
+    },
+    "required": [
+      "promoterId"
+    ]
+  },
+  "PromoterImportReqVO": {
+    "type": "object",
+    "description": "管理后台 - 推广员导入请求 VO",
+    "properties": {
+      "fileUrl": {
+        "type": "string",
+        "description": "OSS文件路径",
+        "example": "https://bucket.oss-cn-beijing.aliyuncs.com/xxx.xlsx",
+        "minLength": 1
+      },
+      "reason": {
+        "type": "string",
+        "description": "导入原因",
+        "example": "批量导入推广员"
+      },
+      "batchNo": {
+        "type": "string",
+        "description": "批次号",
+        "example": "20260421101230"
+      }
+    },
+    "required": [
+      "fileUrl"
+    ]
+  },
+  "CommonResultPromoterImportRespVO": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "msg": {
+        "type": "string"
+      },
+      "data": {
+        "$ref": "#/components/schemas/PromoterImportRespVO"
+      }
+    }
+  },
+  "PromoterImportRespVO": {
+    "type": "object",
+    "description": "管理后台 - 推广员导入响应 VO",
+    "properties": {
+      "fileUrl": {
+        "type": "string",
+        "description": "结果文件OSS路径",
+        "example": "https://bucket.oss-cn-beijing.aliyuncs.com/result.xlsx"
+      },
+      "totalCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "总行数",
+        "example": 100
+      },
+      "successCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "成功行数",
+        "example": 95
+      },
+      "failCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "失败行数",
+        "example": 5
+      }
+    }
+  },
+  "PromoterCreateReqVO": {
+    "type": "object",
+    "description": "管理后台 - 推广员创建请求 VO",
+    "properties": {
+      "mobile": {
+        "type": "string",
+        "description": "手机号",
+        "example": "13800138000",
+        "minLength": 1
+      },
+      "name": {
+        "type": "string",
+        "description": "姓名",
+        "example": "张三"
+      },
+      "provinceId": {
+        "type": "integer",
+        "format": "int32",
+        "description": "省ID",
+        "example": 1
+      },
+      "provinceName": {
+        "type": "string",
+        "description": "省名称",
+        "example": "广东省"
+      },
+      "cityId": {
+        "type": "integer",
+        "format": "int32",
+        "description": "市ID",
+        "example": 1
+      },
+      "cityName": {
+        "type": "string",
+        "description": "市名称",
+        "example": "广州市"
+      },
+      "status": {
+        "type": "integer",
+        "format": "int32",
+        "description": "状态",
+        "example": 1
+      },
+      "remark": {
+        "type": "string",
+        "description": "备注",
+        "example": "备注信息"
+      }
+    },
+    "required": [
+      "mobile",
+      "status"
+    ]
+  },
+  "PromoterBindCreateReqVO": {
+    "type": "object",
+    "description": "管理后台 - 推广绑定创建请求 VO",
+    "properties": {
+      "promoterId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "推广员ID",
+        "example": 1
+      },
+      "userId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "被推广用户ID",
+        "example": 1
+      },
+      "mobile": {
+        "type": "string",
+        "description": "被推广用户手机号",
+        "example": "13800138001"
+      },
+      "provinceId": {
+        "type": "integer",
+        "format": "int32",
+        "description": "省份ID",
+        "example": 1
+      },
+      "cityId": {
+        "type": "integer",
+        "format": "int32",
+        "description": "城市ID",
+        "example": 1
+      },
+      "remark": {
+        "type": "string",
+        "description": "绑定备注",
+        "example": "备注信息"
+      }
+    },
+    "required": [
+      "mobile",
+      "promoterId",
+      "userId"
+    ]
+  },
+  "PromoterTeamCreateReqVO": {
+    "type": "object",
+    "description": "管理后台 - 推广团队创建请求 VO",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "团队名称",
+        "example": "华南团队",
+        "minLength": 1
+      },
+      "leaderId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "负责人ID",
+        "example": 1
+      },
+      "status": {
+        "type": "integer",
+        "format": "int32",
+        "description": "状态",
+        "example": 1
+      },
+      "remark": {
+        "type": "string",
+        "description": "备注",
+        "example": "备注信息"
+      }
+    },
+    "required": [
+      "name",
+      "status"
+    ]
+  },
+  "CommonResultPromoterStatisticsRespVO": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "msg": {
+        "type": "string"
+      },
+      "data": {
+        "$ref": "#/components/schemas/PromoterStatisticsRespVO"
+      }
+    }
+  },
+  "PromoterStatisticsRespVO": {
+    "type": "object",
+    "description": "管理后台 - 推广数据统计响应 VO",
+    "properties": {
+      "promoterId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "推广员ID",
+        "example": 1
+      },
+      "bindCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "绑定客户数",
+        "example": 100
+      },
+      "effectiveCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "有效推广客户数",
+        "example": 80
+      },
+      "pendingCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "待生效客户数",
+        "example": 20
+      }
+    },
+    "required": [
+      "bindCount",
+      "effectiveCount",
+      "pendingCount",
+      "promoterId"
+    ]
+  },
+  "CommonResultPageResultPromoterTeamStatisticsRespVO": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "msg": {
+        "type": "string"
+      },
+      "data": {
+        "$ref": "#/components/schemas/PageResultPromoterTeamStatisticsRespVO"
+      }
+    }
+  },
+  "PageResultPromoterTeamStatisticsRespVO": {
+    "type": "object",
+    "description": "分页结果",
+    "properties": {
+      "total": {
+        "type": "integer",
+        "format": "int64",
+        "description": "总量"
+      },
+      "list": {
+        "type": "array",
+        "description": "数据",
+        "items": {
+          "$ref": "#/components/schemas/PromoterTeamStatisticsRespVO"
+        }
+      }
+    },
+    "required": [
+      "list",
+      "total"
+    ]
+  },
+  "PromoterTeamStatisticsRespVO": {
+    "type": "object",
+    "description": "管理后台 - 推广员团队业绩统计 Response VO",
+    "properties": {
+      "areaId": {
+        "type": "integer",
+        "format": "int32",
+        "description": "地区编号",
+        "example": 1
+      },
+      "areaName": {
+        "type": "string",
+        "description": "地区名称",
+        "example": "广东省"
+      },
+      "areaType": {
+        "type": "integer",
+        "format": "int32",
+        "description": "地区类型：2-省 3-市",
+        "example": 2
+      },
+      "bindTotalCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "绑定总数",
+        "example": 100
+      },
+      "bindEffectiveCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "绑定有效数",
+        "example": 80
+      },
+      "promoterCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "团队推广员数量",
+        "example": 10
+      }
+    }
+  },
+  "CommonResultPageResultPromoterPersonalStatisticsRespVO": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "msg": {
+        "type": "string"
+      },
+      "data": {
+        "$ref": "#/components/schemas/PageResultPromoterPersonalStatisticsRespVO"
+      }
+    }
+  },
+  "PageResultPromoterPersonalStatisticsRespVO": {
+    "type": "object",
+    "description": "分页结果",
+    "properties": {
+      "total": {
+        "type": "integer",
+        "format": "int64",
+        "description": "总量"
+      },
+      "list": {
+        "type": "array",
+        "description": "数据",
+        "items": {
+          "$ref": "#/components/schemas/PromoterPersonalStatisticsRespVO"
+        }
+      }
+    },
+    "required": [
+      "list",
+      "total"
+    ]
+  },
+  "PromoterPersonalStatisticsRespVO": {
+    "type": "object",
+    "description": "管理后台 - 推广员个人业绩统计 Response VO",
+    "properties": {
+      "promoterId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "推广员编号",
+        "example": 1
+      },
+      "promoterName": {
+        "type": "string",
+        "description": "推广员名称",
+        "example": "张三"
+      },
+      "mobile": {
+        "type": "string",
+        "description": "手机号",
+        "example": "13800138000"
+      },
+      "bindTotalCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "绑定总数",
+        "example": 100
+      },
+      "bindEffectiveCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "绑定有效数",
+        "example": 80
+      }
+    }
+  },
+  "CommonResultPageResultPromoterDO": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "msg": {
+        "type": "string"
+      },
+      "data": {
+        "$ref": "#/components/schemas/PageResultPromoterDO"
+      }
+    }
+  },
+  "PageResultPromoterDO": {
+    "type": "object",
+    "description": "分页结果",
+    "properties": {
+      "total": {
+        "type": "integer",
+        "format": "int64",
+        "description": "总量"
+      },
+      "list": {
+        "type": "array",
+        "description": "数据",
+        "items": {
+          "$ref": "#/components/schemas/PromoterDO"
+        }
+      }
+    },
+    "required": [
+      "list",
+      "total"
+    ]
+  },
+  "PromoterDO": {
+    "type": "object",
+    "properties": {
+      "createTime": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "updateTime": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "creator": {
+        "type": "string"
+      },
+      "updater": {
+        "type": "string"
+      },
+      "deleted": {
+        "type": "boolean"
+      },
+      "id": {
+        "type": "integer",
+        "format": "int64"
+      },
+      "teamCode": {
+        "type": "string"
+      },
+      "mobile": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "provinceId": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "provinceName": {
+        "type": "string"
+      },
+      "cityId": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "cityName": {
+        "type": "string"
+      },
+      "status": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "bindCount": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "effectiveCount": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "remark": {
+        "type": "string"
+      }
+    }
+  },
+  "CommonResultPromoterDetailRespVO": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "msg": {
+        "type": "string"
+      },
+      "data": {
+        "$ref": "#/components/schemas/PromoterDetailRespVO"
+      }
+    }
+  },
+  "PromoterDetailRespVO": {
+    "type": "object",
+    "description": "管理后台 - 推广员详情响应 VO",
+    "properties": {
+      "id": {
+        "type": "integer",
+        "format": "int64",
+        "description": "推广员ID",
+        "example": 1
+      },
+      "teamCode": {
+        "type": "string",
+        "description": "团队编号",
+        "example": "123456"
+      },
+      "mobile": {
+        "type": "string",
+        "description": "手机号",
+        "example": "13800138000"
+      },
+      "name": {
+        "type": "string",
+        "description": "姓名",
+        "example": "张三"
+      },
+      "status": {
+        "type": "integer",
+        "format": "int32",
+        "description": "状态",
+        "example": 1
+      },
+      "bindCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "绑定客户数",
+        "example": 100
+      },
+      "effectiveCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "有效推广客户数",
+        "example": 80
+      },
+      "remark": {
+        "type": "string",
+        "description": "备注",
+        "example": "备注信息"
+      },
+      "createTime": {
+        "type": "string",
+        "format": "date-time",
+        "description": "创建时间"
+      }
+    },
+    "required": [
+      "createTime",
+      "id",
+      "mobile"
+    ]
+  },
+  "CommonResultPageResultPromoterBindDO": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "msg": {
+        "type": "string"
+      },
+      "data": {
+        "$ref": "#/components/schemas/PageResultPromoterBindDO"
+      }
+    }
+  },
+  "PageResultPromoterBindDO": {
+    "type": "object",
+    "description": "分页结果",
+    "properties": {
+      "total": {
+        "type": "integer",
+        "format": "int64",
+        "description": "总量"
+      },
+      "list": {
+        "type": "array",
+        "description": "数据",
+        "items": {
+          "$ref": "#/components/schemas/PromoterBindDO"
+        }
+      }
+    },
+    "required": [
+      "list",
+      "total"
+    ]
+  },
+  "PromoterBindDO": {
+    "type": "object",
+    "properties": {
+      "createTime": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "updateTime": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "creator": {
+        "type": "string"
+      },
+      "updater": {
+        "type": "string"
+      },
+      "deleted": {
+        "type": "boolean"
+      },
+      "id": {
+        "type": "integer",
+        "format": "int64"
+      },
+      "promoterId": {
+        "type": "integer",
+        "format": "int64"
+      },
+      "userId": {
+        "type": "integer",
+        "format": "int64"
+      },
+      "mobile": {
+        "type": "string"
+      },
+      "bindProvinceId": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "bindProvinceName": {
+        "type": "string"
+      },
+      "bindCityId": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "bindCityName": {
+        "type": "string"
+      },
+      "remark": {
+        "type": "string"
+      },
+      "isEffective": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "bindTime": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "effectiveTime": {
+        "type": "string",
+        "format": "date-time"
+      }
+    }
+  },
+  "CommonResultPageResultPromoterTeamDO": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "msg": {
+        "type": "string"
+      },
+      "data": {
+        "$ref": "#/components/schemas/PageResultPromoterTeamDO"
+      }
+    }
+  },
+  "PageResultPromoterTeamDO": {
+    "type": "object",
+    "description": "分页结果",
+    "properties": {
+      "total": {
+        "type": "integer",
+        "format": "int64",
+        "description": "总量"
+      },
+      "list": {
+        "type": "array",
+        "description": "数据",
+        "items": {
+          "$ref": "#/components/schemas/PromoterTeamDO"
+        }
+      }
+    },
+    "required": [
+      "list",
+      "total"
+    ]
+  },
+  "PromoterTeamDO": {
+    "type": "object",
+    "properties": {
+      "createTime": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "updateTime": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "creator": {
+        "type": "string"
+      },
+      "updater": {
+        "type": "string"
+      },
+      "deleted": {
+        "type": "boolean"
+      },
+      "tenantId": {
+        "type": "integer",
+        "format": "int64"
+      },
+      "id": {
+        "type": "integer",
+        "format": "int64"
+      },
+      "teamCode": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "leaderId": {
+        "type": "integer",
+        "format": "int64"
+      },
+      "status": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "remark": {
+        "type": "string"
+      }
+    }
+  },
+  "CommonResultListPromoterTeamDO": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "msg": {
+        "type": "string"
+      },
+      "data": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PromoterTeamDO"
+        }
+      }
+    }
+  },
+  "CommonResultPromoterTeamDetailRespVO": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "msg": {
+        "type": "string"
+      },
+      "data": {
+        "$ref": "#/components/schemas/PromoterTeamDetailRespVO"
+      }
+    }
+  },
+  "PromoterTeamDetailRespVO": {
+    "type": "object",
+    "description": "管理后台 - 推广团队详情响应 VO",
+    "properties": {
+      "id": {
+        "type": "integer",
+        "format": "int64",
+        "description": "团队ID",
+        "example": 1
+      },
+      "teamCode": {
+        "type": "string",
+        "description": "团队编号（6位数字）",
+        "example": "123456"
+      },
+      "name": {
+        "type": "string",
+        "description": "团队名称",
+        "example": "华南团队"
+      },
+      "leaderId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "负责人ID",
+        "example": 1
+      },
+      "leaderName": {
+        "type": "string",
+        "description": "负责人姓名",
+        "example": "张三"
+      },
+      "leaderMobile": {
+        "type": "string",
+        "description": "负责人手机号",
+        "example": "13800138000"
+      },
+      "status": {
+        "type": "integer",
+        "format": "int32",
+        "description": "状态：0-禁用 1-启用",
+        "example": 1
+      },
+      "remark": {
+        "type": "string",
+        "description": "备注",
+        "example": "备注信息"
+      },
+      "memberCount": {
+        "type": "integer",
+        "format": "int32",
+        "description": "成员数量",
+        "example": 10
+      },
+      "createTime": {
+        "type": "string",
+        "format": "date-time",
+        "description": "创建时间"
+      },
+      "members": {
+        "type": "array",
+        "description": "团队成员列表",
+        "items": {
+          "$ref": "#/components/schemas/PromoterDO"
+        }
+      }
+    }
+  },
+  "CommonResultPromoterTeamDO": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "msg": {
+        "type": "string"
+      },
+      "data": {
+        "$ref": "#/components/schemas/PromoterTeamDO"
+      }
+    }
+  }
+}
