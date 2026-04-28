@@ -95,7 +95,6 @@ const formData = reactive<Spu>({
 const rules = reactive({
   name: [required],
   categoryId: [required],
-  keyword: [required],
   introduction: [required],
   picUrl: [required],
   sliderPicUrls: [required],
