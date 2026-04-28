@@ -57,6 +57,14 @@
           <Icon icon="ep:plus" class="mr-5px" /> 新增人员
         </el-button>
         <el-button
+          type="success"
+          plain
+          @click="handleBatchDownloadQrcode"
+          :disabled="selectedIds.length === 0"
+        >
+          <Icon icon="ep:download" class="mr-5px" /> 批量下载推广码
+        </el-button>
+        <el-button
           type="warning"
           plain
           @click="openImportForm"
@@ -70,7 +78,8 @@
 
   <!-- 列表 -->
   <ContentWrap>
-    <el-table v-loading="loading" :data="list">
+    <el-table v-loading="loading" :data="list" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="编号" align="center" prop="id" />
       <el-table-column label="所属团队编号" align="center" prop="teamCode">
         <template #default="scope">
@@ -92,8 +101,11 @@
         width="180"
       />
       <el-table-column label="备注" align="center" prop="remark" />
-      <el-table-column label="操作" align="center" width="150" fixed="right">
+      <el-table-column label="操作" align="center" width="200" fixed="right">
         <template #default="scope">
+          <el-button link type="primary" @click="openQrcodeForm(scope.row.id, scope.row.name)">
+            推广码
+          </el-button>
           <el-button
             link
             type="primary"
@@ -126,6 +138,8 @@
   <PromoterForm ref="formRef" @success="getList" />
   <!-- 表单弹窗：导入 -->
   <PromoterImportForm ref="importFormRef" @success="getList" />
+  <!-- 推广码弹窗 -->
+  <PromoterQrcodeForm ref="qrcodeFormRef" />
 </template>
 
 <script setup lang="ts">
@@ -135,6 +149,7 @@ import { dateFormatter } from '@/utils/formatTime'
 import * as PromoterApi from '@/api/mall/trade/promoter'
 import PromoterForm from './PromoterForm.vue'
 import PromoterImportForm from './PromoterImportForm.vue'
+import PromoterQrcodeForm from './PromoterQrcodeForm.vue'
 
 defineOptions({ name: 'Promoter' })
 
@@ -153,6 +168,63 @@ const queryParams = reactive({
   status: undefined
 })
 const queryFormRef = ref() // 搜索的表单
+
+const selectedRows = ref<any[]>([]) // 选中的行
+const selectedIds = computed(() => selectedRows.value.map((row) => row.id))
+
+/** 多选操作 */
+const handleSelectionChange = (rows: any[]) => {
+  selectedRows.value = rows
+}
+
+/** 批量下载推广码 */
+const handleBatchDownloadQrcode = async () => {
+  if (selectedRows.value.length === 0) return
+
+  try {
+    await message.confirm(`确认要批量下载选中的 ${selectedRows.value.length} 个推广码吗？`)
+    loading.value = true
+
+    // 遍历下载，增加一定延迟防止并发过高
+    for (let i = 0; i < selectedRows.value.length; i++) {
+      const row = selectedRows.value[i]
+      try {
+        const res = await PromoterApi.generateWxaQrcode({
+          scene: `spm=${row.id}.1.0.3.2`,
+          path: 'pages/index/index',
+          width: 430
+        })
+
+        let qrcodeUrl = ''
+        if (res && typeof res === 'string') {
+          if (res.startsWith('http') || res.startsWith('data:image')) {
+            qrcodeUrl = res
+          } else {
+            qrcodeUrl = 'data:image/png;base64,' + res
+          }
+
+          // 下载
+          const link = document.createElement('a')
+          link.href = qrcodeUrl
+          // 文件名：姓名+手机号
+          link.download = `${row.name || '未命名'}_${row.mobile || '无手机号'}.png`
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+
+          // 延时 500ms
+          await new Promise((resolve) => setTimeout(resolve, 500))
+        }
+      } catch (err) {
+        console.error(`下载推广码失败 - ${row.name}`, err)
+      }
+    }
+    message.success('批量下载指令发送完毕')
+  } catch {
+  } finally {
+    loading.value = false
+  }
+}
 
 /** 查询列表 */
 const getList = async () => {
@@ -188,6 +260,12 @@ const openForm = (type: string, id?: number) => {
 const importFormRef = ref()
 const openImportForm = () => {
   importFormRef.value.open()
+}
+
+/** 推广码操作 */
+const qrcodeFormRef = ref()
+const openQrcodeForm = (id: number, name: string) => {
+  qrcodeFormRef.value.open(id, name)
 }
 
 /** 删除按钮操作 */

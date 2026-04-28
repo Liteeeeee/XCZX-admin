@@ -60,6 +60,8 @@ export interface Spu {
   stock?: number // 商品库存
   createTime?: Date // 商品创建时间
   status?: number // 商品状态
+  qualificationCover?: string // 资质封面URL
+  qualificationDetection?: string // 资质检测文件URL
 }
 
 // 获得 Spu 列表

@@ -50,6 +50,11 @@ export const importPromoter = async (data: { fileUrl: string, reason?: string, b
   return await request.post({ url: `/trade/promoter/import`, data })
 }
 
+// 生成小程序码
+export const generateWxaQrcode = async (data: { scene: string; path: string; width?: number }) => {
+  return await request.post({ url: `/system/social-client/wxa-qrcode`, data })
+}
+
 // ======================= 推广团队 =======================
 
 export interface PromoterTeamVO {
