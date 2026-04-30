@@ -49,6 +49,9 @@ const service: AxiosInstance = axios.create({
 // request拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    // 加入 X-Trace-Id：随机字符串加当前时间
+    config.headers['X-Trace-Id'] = Math.random().toString(36).substring(2, 10) + Date.now()
+
     // 是否需要设置 token
     let isToken = (config!.headers || {}).isToken === false
     whiteList.some((v) => {
