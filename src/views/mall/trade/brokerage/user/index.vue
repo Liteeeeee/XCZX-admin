@@ -59,6 +59,14 @@
           <Icon class="mr-5px" icon="ep:plus" />
           新增
         </el-button>
+        <el-button
+          plain
+          type="success"
+          @click="handleGenerateSpecialQrcode"
+        >
+          <Icon class="mr-5px" icon="ep:picture" />
+          生成特殊太阳码
+        </el-button>
       </el-form-item>
     </el-form>
   </ContentWrap>
@@ -201,11 +209,32 @@
   <BrokerageOrderListDialog ref="orderDialogRef" />
   <!-- 创建分销员 -->
   <BrokerageUserCreateForm ref="createFormRef" @success="getList" />
+  <!-- 推广码弹窗 -->
+  <Dialog title="特殊太阳码" v-model="qrcodeDialogVisible" width="400px">
+    <div class="flex flex-col items-center justify-center" v-loading="qrcodeLoading">
+      <div v-if="qrcodeUrl" class="mb-4">
+        <el-image
+          :src="qrcodeUrl"
+          class="w-250px h-250px border border-gray-200 rounded-md"
+          :preview-src-list="[qrcodeUrl]"
+          fit="contain"
+        />
+      </div>
+      <div v-else-if="!qrcodeLoading" class="text-gray-400 mb-4 h-250px flex items-center">
+        获取失败
+      </div>
+      <el-button type="primary" @click="handleDownloadQrcode" :disabled="!qrcodeUrl">
+        <Icon icon="ep:download" class="mr-5px" /> 下载保存
+      </el-button>
+    </div>
+  </Dialog>
 </template>
 
 <script lang="ts" setup>
+import { ref, reactive, onMounted } from 'vue'
 import { dateFormatter } from '@/utils/formatTime'
 import * as BrokerageUserApi from '@/api/mall/trade/brokerage/user'
+import * as PromoterApi from '@/api/mall/trade/promoter'
 import { checkPermi } from '@/utils/permission'
 import { fenToYuanFormat } from '@/utils/formatter'
 import BrokerageUserUpdateForm from '@/views/mall/trade/brokerage/user/BrokerageUserUpdateForm.vue'
@@ -268,6 +297,48 @@ const handleCommand = (command: string, row: BrokerageUserApi.BrokerageUserVO) =
       handleClearBindUser(row)
       break
   }
+}
+
+const qrcodeDialogVisible = ref(false)
+const qrcodeLoading = ref(false)
+const qrcodeUrl = ref('')
+
+/** 生成特殊太阳码 */
+const handleGenerateSpecialQrcode = async () => {
+  qrcodeDialogVisible.value = true
+  qrcodeLoading.value = true
+  qrcodeUrl.value = ''
+  
+  try {
+    const res = await PromoterApi.generateWxaQrcode({
+      scene: `is_special=1`, // 根据要求，参数为 is_special=1
+      path: 'pages/index/index',
+      width: 430
+    })
+    
+    if (res && typeof res === 'string') {
+      if (res.startsWith('http') || res.startsWith('data:image')) {
+        qrcodeUrl.value = res
+      } else {
+        qrcodeUrl.value = 'data:image/png;base64,' + res
+      }
+    }
+  } catch (error) {
+    console.error('获取特殊太阳码失败', error)
+  } finally {
+    qrcodeLoading.value = false
+  }
+}
+
+/** 下载特殊太阳码 */
+const handleDownloadQrcode = () => {
+  if (!qrcodeUrl.value) return
+  const link = document.createElement('a')
+  link.href = qrcodeUrl.value
+  link.download = `特殊太阳码.png`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 
 /** 打开推广人列表 */
