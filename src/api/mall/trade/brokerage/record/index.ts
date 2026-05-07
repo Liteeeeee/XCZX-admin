@@ -9,3 +9,8 @@ export const getBrokerageRecordPage = async (params: any) => {
 export const getBrokerageRecord = async (id: number) => {
   return await request.get({ url: `/trade/brokerage-record/get?id=` + id })
 }
+
+// 获得分销商品统计分页
+export const getBrokerageProductStatisticsPage = async (params: any) => {
+  return await request.get({ url: `/trade/brokerage-record/product-statistics-page`, params })
+}

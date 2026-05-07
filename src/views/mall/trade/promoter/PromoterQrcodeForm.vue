@@ -12,9 +12,9 @@
       <div v-else-if="!loading" class="text-gray-400 mb-4 h-250px flex items-center">
         暂无推广码
       </div>
-      
+
       <div class="text-gray-500 text-sm mb-4 text-center">
-        用户通过微信扫码后，将自动与该推广员绑定<br/>
+        用户通过微信扫码后，将自动与该推广员绑定<br />
         并记录推广业绩
       </div>
 
@@ -41,15 +41,15 @@ const open = async (promoterId: number, promoterName: string) => {
   dialogVisible.value = true
   qrcodeUrl.value = ''
   currentPromoterName.value = promoterName
-  
+
   loading.value = true
   try {
     const res = await PromoterApi.generateWxaQrcode({
-      scene: `spm=${promoterId}.1.0.3.2`,
+      scene: `promotionId=${promoterId}`,
       path: 'pages/index/index',
       width: 430
     })
-    
+
     // 如果返回的是 base64 字符串但没有前缀，加上前缀
     if (res && typeof res === 'string') {
       if (res.startsWith('http')) {
@@ -70,7 +70,7 @@ const open = async (promoterId: number, promoterName: string) => {
 /** 下载推广码 */
 const handleDownload = () => {
   if (!qrcodeUrl.value) return
-  
+
   const link = document.createElement('a')
   link.href = qrcodeUrl.value
   link.download = `推广码-${currentPromoterName.value}.png`

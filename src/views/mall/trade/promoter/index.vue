@@ -190,7 +190,7 @@ const handleBatchDownloadQrcode = async () => {
       const row = selectedRows.value[i]
       try {
         const res = await PromoterApi.generateWxaQrcode({
-          scene: `spm=${row.id}.1.0.3.2`,
+          scene: `promotionId=${row.id}`,
           path: 'pages/index/index',
           width: 430
         })

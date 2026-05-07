@@ -44,15 +44,12 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleQuery"><Icon icon="ep:search" class="mr-5px" /> 查询</el-button>
+        <el-button type="primary" @click="handleQuery"
+          ><Icon icon="ep:search" class="mr-5px" /> 查询</el-button
+        >
         <el-button @click="resetQuery"><Icon icon="ep:refresh" class="mr-5px" /> 重置</el-button>
         <!-- 暂时留空，等待后端导出接口完善 -->
-        <el-button
-          type="success"
-          plain
-          @click="handleExport"
-          :loading="exportLoading"
-        >
+        <el-button type="success" plain @click="handleExport" :loading="exportLoading">
           <Icon icon="ep:download" class="mr-5px" /> 导出数据
         </el-button>
       </el-form-item>
@@ -64,9 +61,9 @@
     <el-table v-loading="loading" :data="list">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="姓名" align="center" prop="name" />
-      <el-table-column label="团队" align="center" prop="teamCode">
+      <el-table-column label="团队编码" align="center" prop="teamCode">
         <template #default="scope">
-          {{ getTeamName(scope.row.teamCode) || '无' }}
+          {{ scope.row.teamCode ? scope.row.teamCode : '无' }}
         </template>
       </el-table-column>
       <el-table-column label="账号状态" align="center" prop="status">
@@ -76,9 +73,8 @@
       </el-table-column>
       <el-table-column label="手机" align="center" prop="mobile" />
       <el-table-column label="推广人数" align="center" prop="bindCount" />
-      <el-table-column label="操作" align="center" width="150" fixed="right">
-        <!-- 预留操作列 -->
-      </el-table-column>
+      <!-- <el-table-column label="操作" align="center" width="150" fixed="right">
+      </el-table-column> -->
     </el-table>
     <!-- 分页 -->
     <Pagination
@@ -147,7 +143,7 @@ const getTeamList = async () => {
 /** 根据 teamCode 获取团队名称 */
 const getTeamName = (teamCode: string) => {
   if (!teamCode) return ''
-  const team = teamList.value.find(item => item.teamCode === teamCode)
+  const team = teamList.value.find((item) => item.teamCode === teamCode)
   return team ? team.teamName : teamCode
 }
 
