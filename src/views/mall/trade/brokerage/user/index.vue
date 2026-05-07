@@ -59,11 +59,7 @@
           <Icon class="mr-5px" icon="ep:plus" />
           新增
         </el-button>
-        <el-button
-          plain
-          type="success"
-          @click="handleGenerateSpecialQrcode"
-        >
+        <el-button plain type="success" @click="handleGenerateSpecialQrcode">
           <Icon class="mr-5px" icon="ep:picture" />
           生成特殊太阳码
         </el-button>
@@ -308,14 +304,15 @@ const handleGenerateSpecialQrcode = async () => {
   qrcodeDialogVisible.value = true
   qrcodeLoading.value = true
   qrcodeUrl.value = ''
-  
+
   try {
     const res = await PromoterApi.generateWxaQrcode({
       scene: `is_special=1`, // 根据要求，参数为 is_special=1
       path: 'pages/index/index',
-      width: 430
+      width: 430,
+      envVersion: 'release' // 指定生成正式版小程序码
     })
-    
+
     if (res && typeof res === 'string') {
       if (res.startsWith('http') || res.startsWith('data:image')) {
         qrcodeUrl.value = res
@@ -360,7 +357,7 @@ const openUpdateBindUserForm = (row: BrokerageUserApi.BrokerageUserVO) => {
 }
 
 /** 创建分销员 */
-const createFormRef = ref<InstanceType<typeof CreateUserForm>>()
+const createFormRef = ref<InstanceType<typeof BrokerageUserCreateForm>>()
 const openCreateUserForm = () => {
   createFormRef.value?.open()
 }

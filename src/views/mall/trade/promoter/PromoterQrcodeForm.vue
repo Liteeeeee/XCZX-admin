@@ -47,7 +47,8 @@ const open = async (promoterId: number, promoterName: string) => {
     const res = await PromoterApi.generateWxaQrcode({
       scene: `promotionId=${promoterId}`,
       path: 'pages/index/index',
-      width: 430
+      width: 430,
+      envVersion: 'release' // 指定生成正式版小程序码
     })
 
     // 如果返回的是 base64 字符串但没有前缀，加上前缀

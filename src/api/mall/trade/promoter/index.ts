@@ -46,12 +46,21 @@ export const importPromoterTemplate = async () => {
 }
 
 // 导入推广员列表
-export const importPromoter = async (data: { fileUrl: string, reason?: string, batchNo?: string }) => {
+export const importPromoter = async (data: {
+  fileUrl: string
+  reason?: string
+  batchNo?: string
+}) => {
   return await request.post({ url: `/trade/promoter/import`, data })
 }
 
 // 生成小程序码
-export const generateWxaQrcode = async (data: { scene: string; path: string; width?: number }) => {
+export const generateWxaQrcode = async (data: {
+  scene: string
+  path: string
+  width?: number
+  envVersion?: string
+}) => {
   return await request.post({ url: `/system/social-client/wxa-qrcode`, data })
 }
 
@@ -105,5 +114,3 @@ export const deletePromoterTeam = async (id: number) => {
 export const setPromoterTeamLeader = async (id: number, leaderId: number) => {
   return await request.put({ url: `/trade/promoter-team/set-leader`, data: { id, leaderId } })
 }
-
-
