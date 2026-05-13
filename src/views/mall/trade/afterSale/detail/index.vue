@@ -117,6 +117,38 @@
       </el-descriptions-item>
     </el-descriptions>
 
+    <el-descriptions title="售后历史">
+      <el-descriptions-item labelClassName="no-colon">
+        <el-table v-loading="historyLoading" :data="historyList" border>
+          <el-table-column label="售后单号" prop="no" min-width="180" />
+          <el-table-column label="售后类型" prop="type" width="100">
+            <template #default="{ row }">
+              <dict-tag :type="DICT_TYPE.TRADE_AFTER_SALE_TYPE" :value="row.type" />
+            </template>
+          </el-table-column>
+          <el-table-column label="售后方式" prop="way" width="100">
+            <template #default="{ row }">
+              <dict-tag :type="DICT_TYPE.TRADE_AFTER_SALE_WAY" :value="row.way" />
+            </template>
+          </el-table-column>
+          <el-table-column label="退款金额" prop="refundPrice" width="120">
+            <template #default="{ row }">￥{{ fenToYuan(row.refundPrice || 0) }}</template>
+          </el-table-column>
+          <el-table-column label="状态" prop="status" width="100">
+            <template #default="{ row }">
+              <dict-tag :type="DICT_TYPE.TRADE_AFTER_SALE_STATUS" :value="row.status" />
+            </template>
+          </el-table-column>
+          <el-table-column label="申请原因" prop="applyReason" min-width="140" />
+          <el-table-column label="创建时间" prop="createTime" width="170">
+            <template #default="{ row }">{{
+              row.createTime ? formatDate(row.createTime) : '-'
+            }}</template>
+          </el-table-column>
+        </el-table>
+      </el-descriptions-item>
+    </el-descriptions>
+
     <!-- 操作日志 -->
     <el-descriptions title="售后日志">
       <el-descriptions-item labelClassName="no-colon">
@@ -146,6 +178,8 @@
 
   <!-- 各种操作的弹窗 -->
   <UpdateAuditReasonForm ref="updateAuditReasonFormRef" @success="getDetail" />
+  <AfterSaleRefuseForm ref="refuseFormRef" @success="getDetail" />
+  <AfterSaleRefundForm ref="refundFormRef" @success="getDetail" />
 </template>
 <script lang="ts" setup>
 import * as AfterSaleApi from '@/api/mall/trade/afterSale/index'
@@ -153,6 +187,8 @@ import { fenToYuan } from '@/utils'
 import { DICT_TYPE, getDictLabel, getDictObj } from '@/utils/dict'
 import { formatDate } from '@/utils/formatTime'
 import UpdateAuditReasonForm from '@/views/mall/trade/afterSale/form/AfterSaleDisagreeForm.vue'
+import AfterSaleRefuseForm from '@/views/mall/trade/afterSale/form/AfterSaleRefuseForm.vue'
+import AfterSaleRefundForm from '@/views/mall/trade/afterSale/form/AfterSaleRefundForm.vue'
 import { createImageViewer } from '@/components/ImageViewer'
 import { isArray } from '@/utils/is'
 import { useTagsViewStore } from '@/store/modules/tagsView'
@@ -163,11 +199,15 @@ const { t } = useI18n() // 国际化
 const message = useMessage() // 消息弹窗
 const { params } = useRoute() // 查询参数
 const { push, currentRoute } = useRouter() // 路由
-const formData = ref({
+const formData = ref<any>({
   order: {},
   logs: []
 })
 const updateAuditReasonFormRef = ref() // 拒绝售后表单 Ref
+const refuseFormRef = ref() // 拒绝收货表单 Ref
+const refundFormRef = ref() // 确认退款表单 Ref
+const historyLoading = ref(false)
+const historyList = ref([])
 
 /** 获得 userType 颜色 */
 const getUserTypeColor = (type: number) => {
@@ -196,6 +236,23 @@ const getDetail = async () => {
       close()
     }
     formData.value = res
+    await getHistory()
+  }
+}
+
+const getHistory = async () => {
+  const orderItemId =
+    formData.value.orderItemId ?? formData.value.orderItem?.id ?? (params.id as unknown as number)
+  if (!orderItemId) {
+    historyList.value = []
+    return
+  }
+  historyLoading.value = true
+  try {
+    const res = await AfterSaleApi.getAfterSalePage({ pageNo: 1, pageSize: 50, orderItemId })
+    historyList.value = res.list || []
+  } finally {
+    historyLoading.value = false
   }
 }
 
@@ -230,31 +287,17 @@ const receive = async () => {
 
 /** 拒绝收货 */
 const refuse = async () => {
-  try {
-    // 二次确认
-    await message.confirm('是否拒绝收货？')
-    await AfterSaleApi.refuse(formData.value.id)
-    // 提示成功
-    message.success(t('common.success'))
-    await getDetail()
-  } catch {}
+  refuseFormRef.value?.open(formData.value)
 }
 
 /** 确认退款 */
 const refund = async () => {
-  try {
-    // 二次确认
-    await message.confirm('是否确认退款？')
-    await AfterSaleApi.refund(formData.value.id)
-    // 提示成功
-    message.success(t('common.success'))
-    await getDetail()
-  } catch {}
+  refundFormRef.value?.open(formData.value)
 }
 
 /** 图片预览 */
 const imagePreview = (args) => {
-  const urlList = []
+  const urlList: string[] = []
   if (isArray(args)) {
     args.forEach((item) => {
       urlList.push(item.url)

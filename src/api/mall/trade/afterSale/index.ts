@@ -39,6 +39,14 @@ export interface ProductPropertiesVO {
   valueName?: string // 属性值的名称
 }
 
+export interface AfterSaleOrderItemRefundSummaryRespVO {
+  orderItemId: number
+  payPrice: number
+  deliveryPrice: number
+  refundedPrice: number
+  remainingRefundPrice: number
+}
+
 // 获得交易售后分页
 export const getAfterSalePage = async (params) => {
   return await request.get({ url: `/trade/after-sale/page`, params })
@@ -47,6 +55,14 @@ export const getAfterSalePage = async (params) => {
 // 获得交易售后详情
 export const getAfterSale = async (id: any) => {
   return await request.get({ url: `/trade/after-sale/get-detail?id=${id}` })
+}
+
+// 获取订单项退款汇总
+export const getRefundSummary = async (orderItemId: number) => {
+  return await request.get<AfterSaleOrderItemRefundSummaryRespVO>({
+    url: `/trade/after-sale/get-refund-summary`,
+    params: { orderItemId }
+  })
 }
 
 // 同意售后
@@ -65,11 +81,11 @@ export const receive = async (id: any) => {
 }
 
 // 拒绝收货
-export const refuse = async (id: any) => {
-  return await request.put({ url: `/trade/after-sale/refuse?id=${id}` })
+export const refuse = async (params: { id: number | undefined; refuseMemo: string }) => {
+  return await request.put({ url: `/trade/after-sale/refuse`, params })
 }
 
 // 确认退款
-export const refund = async (id: any) => {
-  return await request.put({ url: `/trade/after-sale/refund?id=${id}` })
+export const refund = async (data: { id: number | undefined; refundPrice: number }) => {
+  return await request.put({ url: `/trade/after-sale/refund`, data })
 }
