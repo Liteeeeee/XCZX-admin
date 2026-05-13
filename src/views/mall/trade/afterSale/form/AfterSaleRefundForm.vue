@@ -58,7 +58,7 @@ const formLoading = ref(false)
 const refundSummary = ref<AfterSaleApi.AfterSaleOrderItemRefundSummaryRespVO>()
 const maxRefundPrice = computed(() => {
   if (!refundSummary.value) return undefined
-  return parseFloat(fenToYuan(refundSummary.value.remainingRefundPrice))
+  return parseFloat(fenToYuan(refundSummary.value.payPrice))
 })
 const formData = ref({
   id: undefined as number | undefined,
@@ -76,7 +76,7 @@ const open = async (row: AfterSaleApi.TradeAfterSaleVO) => {
   try {
     if (row.orderItemId != null) {
       refundSummary.value = await AfterSaleApi.getRefundSummary(row.orderItemId)
-      formData.value.refundPrice = parseFloat(fenToYuan(refundSummary.value.remainingRefundPrice))
+      formData.value.refundPrice = parseFloat(fenToYuan(refundSummary.value.payPrice))
     } else {
       refundSummary.value = undefined
       formData.value.refundPrice = parseFloat(fenToYuan(row.refundPrice || 0))

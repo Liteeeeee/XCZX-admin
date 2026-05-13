@@ -13,7 +13,6 @@
       <el-form-item label="提现最低金额" prop="withdrawMinPrice">
         <el-input-number
           v-model="formData.withdrawMinPrice"
-          :min="200"
           :precision="2"
           class="!w-xs"
           placeholder="请输入提现最低金额"
@@ -151,7 +150,9 @@ const submitForm = async () => {
   if (!valid) return
   formLoading.value = true
   try {
-    const data = cloneDeep(unref(formData)) as unknown as BrokerageWithdrawConfigApi.BrokerageWithdrawConfigVO
+    const data = cloneDeep(
+      unref(formData)
+    ) as unknown as BrokerageWithdrawConfigApi.BrokerageWithdrawConfigVO
     data.withdrawMinPrice = convertToInteger(data.withdrawMinPrice)
     data.withdrawMaxPrice = convertToInteger(data.withdrawMaxPrice)
     if (formType.value === 'create') {
