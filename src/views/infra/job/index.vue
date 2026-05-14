@@ -77,6 +77,9 @@
         <el-button type="info" plain @click="handleJobLog()" v-hasPermi="['infra:job:query']">
           <Icon icon="ep:zoom-in" class="mr-5px" /> 执行日志
         </el-button>
+        <el-button type="warning" plain @click="handleSyncJob" v-hasPermi="['infra:job:update']">
+          <Icon icon="ep:refresh" class="mr-5px" /> 同步任务
+        </el-button>
       </el-form-item>
     </el-form>
   </ContentWrap>
@@ -207,6 +210,15 @@ const handleQuery = () => {
 const resetQuery = () => {
   queryFormRef.value.resetFields()
   handleQuery()
+}
+
+const handleSyncJob = async () => {
+  try {
+    await message.confirm('确认同步定时任务吗？', t('common.reminder'))
+    await JobApi.syncJob()
+    message.success('同步成功')
+    await getList()
+  } catch {}
 }
 
 /** 导出按钮操作 */

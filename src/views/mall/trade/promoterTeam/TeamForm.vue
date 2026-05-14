@@ -17,6 +17,7 @@
           placeholder="请选择主管人员"
           clearable
           filterable
+          :disabled="formType === 'create'"
           class="w-full"
         >
           <el-option
@@ -136,7 +137,7 @@ const submitForm = async () => {
       await PromoterApi.updatePromoterTeam(submitData)
       message.success('修改团队成功')
     }
-    
+
     dialogVisible.value = false
     emit('success')
   } catch (error) {
