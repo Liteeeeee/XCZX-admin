@@ -54,7 +54,7 @@
         <el-image
           v-for="(item, index) in formData.applyPicUrls"
           :key="index"
-          :src="item.url"
+          :src="typeof item === 'string' ? item : item.url"
           class="mr-10px h-60px w-60px"
           @click="imagePreview(formData.applyPicUrls)"
         />
@@ -300,7 +300,11 @@ const imagePreview = (args) => {
   const urlList: string[] = []
   if (isArray(args)) {
     args.forEach((item) => {
-      urlList.push(item.url)
+      if (typeof item === 'string') {
+        urlList.push(item)
+      } else if (item?.url) {
+        urlList.push(item.url)
+      }
     })
   } else {
     urlList.push(args)

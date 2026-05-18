@@ -55,7 +55,7 @@
     </template>
   </Dialog>
 
-  <Dialog v-model="skuDialogVisible" title="选择 SKU" width="900px">
+  <Dialog v-model="skuDialogVisible" title="选择 SKU" width="900px" scroll maxHeight="70vh">
     <el-form ref="skuQueryFormRef" :inline="true" :model="skuQueryParams" class="-mb-15px">
       <el-form-item label="名称" prop="name">
         <el-input
