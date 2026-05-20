@@ -152,7 +152,7 @@
               防止用户退款，佣金被提现了，所以需要设置佣金冻结时间，单位：天
             </el-text>
           </el-form-item>
-          <el-form-item label="提现最低金额" prop="brokerageWithdrawMinPrice">
+          <!-- <el-form-item label="提现最低金额" prop="brokerageWithdrawMinPrice">
             <el-input-number
               v-model="formData.brokerageWithdrawMinPrice"
               :min="0"
@@ -176,7 +176,7 @@
               提现手续费百分比，范围 0-100，0 为无提现手续费。例：设置 10，即收取 10% 手续费，提现
               10 元，到账 9 元，1 元手续费
             </el-text>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="提现方式" prop="brokerageWithdrawTypes">
             <el-checkbox-group v-model="formData.brokerageWithdrawTypes">
               <el-checkbox

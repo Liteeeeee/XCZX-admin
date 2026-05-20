@@ -80,9 +80,17 @@
             </template>
           </el-table-column>
           <el-table-column label="审核人" align="left" prop="auditUserName" min-width="100px" />
-          <el-table-column label="审核时间" align="left" prop="auditTime" min-width="160px" />
+          <el-table-column label="审核时间" align="left" prop="auditTime" min-width="160px">
+            <template #default="scope">
+              {{ formatDate(scope.row.auditTime) }}
+            </template>
+          </el-table-column>
           <el-table-column label="拒绝原因" align="left" prop="refuseReason" min-width="160px" />
-          <el-table-column label="创建时间" align="left" prop="createTime" min-width="160px" />
+          <el-table-column label="创建时间" align="left" prop="createTime" min-width="160px">
+            <template #default="scope">
+              {{ formatDate(scope.row.createTime) }}
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" min-width="160px">
             <template #default="scope">
               <el-button link type="primary" @click="openDetail(scope.row.id)">详情</el-button>
@@ -187,7 +195,11 @@
             </template>
           </el-table-column>
           <el-table-column label="审核人" align="left" prop="auditUserName" min-width="120px" />
-          <el-table-column label="审核时间" align="left" prop="auditTime" min-width="160px" />
+          <el-table-column label="审核时间" align="left" prop="auditTime" min-width="160px">
+            <template #default="scope">
+              {{ formatDate(scope.row.auditTime) }}
+            </template>
+          </el-table-column>
           <el-table-column label="审核原因" align="left" prop="auditReason" min-width="200px" />
         </el-table>
         <Pagination
@@ -215,7 +227,11 @@
         </el-tag>
       </el-descriptions-item>
       <el-descriptions-item label="身份证号">{{ detailData?.idCardNo }}</el-descriptions-item>
-      <el-descriptions-item label="补充信息">{{ detailData?.additionalInfo }}</el-descriptions-item>
+      <el-descriptions-item label="补充信息" :span="2">
+        <el-text style="white-space: pre-wrap; word-break: break-word">
+          {{ additionalInfoDisplay }}
+        </el-text>
+      </el-descriptions-item>
       <el-descriptions-item v-if="qualificationImages.length" label="资质图片" :span="2">
         <div class="flex flex-wrap gap-12px">
           <el-image
@@ -230,8 +246,8 @@
       </el-descriptions-item>
       <el-descriptions-item label="拒绝原因">{{ detailData?.refuseReason }}</el-descriptions-item>
       <el-descriptions-item label="审核人">{{ detailData?.auditUserName }}</el-descriptions-item>
-      <el-descriptions-item label="审核时间">{{ detailData?.auditTime }}</el-descriptions-item>
-      <el-descriptions-item label="创建时间">{{ detailData?.createTime }}</el-descriptions-item>
+      <el-descriptions-item label="审核时间">{{ formatDate(detailData?.auditTime) }}</el-descriptions-item>
+      <el-descriptions-item label="创建时间">{{ formatDate(detailData?.createTime) }}</el-descriptions-item>
     </el-descriptions>
     <template #footer>
       <el-button @click="detailVisible = false">关 闭</el-button>
@@ -245,6 +261,7 @@
 <script setup lang="ts">
 import * as BrokerageApplyApi from '@/api/mall/trade/brokerage/approval'
 import { DICT_TYPE, getDictLabel } from '@/utils/dict'
+import { formatDate } from '@/utils/formatTime'
 import BrokerageApplyRejectForm from './components/BrokerageApplyRejectForm.vue'
 import BrokerageApplyResubmitForm from './components/BrokerageApplyResubmitForm.vue'
 
@@ -327,6 +344,35 @@ const openResubmitForm = (id: number) => {
 const detailVisible = ref(false)
 const detailLoading = ref(false)
 const detailData = ref<BrokerageApplyApi.BrokerageApplyVO>()
+const parseAdditionalInfo = (value: unknown): Record<string, unknown> | undefined => {
+  if (!value) return undefined
+  if (typeof value === 'object') return value as Record<string, unknown>
+  if (typeof value !== 'string') return undefined
+  try {
+    const parsed = JSON.parse(value)
+    if (typeof parsed === 'string') return parseAdditionalInfo(parsed)
+    return typeof parsed === 'object' && parsed ? (parsed as Record<string, unknown>) : undefined
+  } catch {
+    return undefined
+  }
+}
+const additionalInfoDisplay = computed(() => {
+  const raw = detailData.value?.additionalInfo
+  const parsed = parseAdditionalInfo(raw)
+  if (!parsed) return raw || ''
+  const entries = Object.entries(parsed).filter(([key]) => key !== 'qualificationImages')
+  if (!entries.length) return ''
+  if (entries.length === 1 && entries[0][0] === 'reason') return String(entries[0][1] ?? '')
+  return entries
+    .map(([key, value]) => {
+      if (value === null || value === undefined) return `${key}: `
+      if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+        return `${key}: ${value}`
+      }
+      return `${key}: ${JSON.stringify(value)}`
+    })
+    .join('\n')
+})
 const qualificationImages = computed<string[]>(() => {
   const cdnBaseUrl = 'https://xiancao.oss-cn-beijing.aliyuncs.com'
   const normalizeImageUrl = (url: string): string => {
@@ -341,20 +387,6 @@ const qualificationImages = computed<string[]>(() => {
       return `${cdnBaseUrl}/${trimmedUrl}`
     }
     return `${import.meta.env.VITE_BASE_URL}${trimmedUrl.startsWith('/') ? '' : '/'}${trimmedUrl}`
-  }
-
-  const parseAdditionalInfo = (value: unknown): Record<string, unknown> | undefined => {
-    if (!value) return undefined
-    if (typeof value === 'object') return value as Record<string, unknown>
-    if (typeof value !== 'string') return undefined
-    try {
-      const parsed = JSON.parse(value)
-      // 兼容后端返回二次序列化字符串的情况
-      if (typeof parsed === 'string') return parseAdditionalInfo(parsed)
-      return typeof parsed === 'object' && parsed ? (parsed as Record<string, unknown>) : undefined
-    } catch {
-      return undefined
-    }
   }
 
   const additionalInfo = detailData.value?.additionalInfo
