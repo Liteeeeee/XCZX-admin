@@ -24,7 +24,7 @@
           <el-option
             v-for="team in teamList"
             :key="team.teamCode"
-            :label="team.name + ' (' + team.teamCode + ')'"
+            :label="team.teamName + ' (' + team.teamCode + ')'"
             :value="team.teamCode"
           />
         </el-select>

@@ -66,9 +66,12 @@
   <ContentWrap>
     <el-table v-loading="loading" :data="list" :show-overflow-tooltip="true" :stripe="true">
       <el-table-column align="center" label="Banner标题" prop="title" />
-      <el-table-column align="center" label="图片" min-width="80" prop="picUrl">
+      <el-table-column align="center" label="素材" min-width="80" prop="picUrl">
         <template #default="{ row }">
-          <el-image :src="row.picUrl" class="h-30px w-30px" @click="imagePreview(row.picUrl)" />
+          <el-link v-if="isVideoUrl(row.picUrl)" :href="row.picUrl" target="_blank" type="primary">
+            查看视频
+          </el-link>
+          <el-image v-else :src="row.picUrl" class="h-30px w-30px" @click="imagePreview(row.picUrl)" />
         </template>
       </el-table-column>
       <el-table-column align="center" label="状态" prop="status">
@@ -154,6 +157,11 @@ const imagePreview = (imgUrl: string) => {
   createImageViewer({
     urlList: [imgUrl]
   })
+}
+const isVideoUrl = (url?: string) => {
+  if (!url) return false
+  const normalized = String(url).split('?')[0].toLowerCase()
+  return ['.mp4', '.mov', '.m3u8'].some((ext) => normalized.endsWith(ext))
 }
 
 /** 查询列表 */

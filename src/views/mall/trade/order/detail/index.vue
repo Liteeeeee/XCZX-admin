@@ -21,6 +21,37 @@
       </el-descriptions-item>
     </el-descriptions>
 
+    <el-descriptions v-if="payOrder" title="支付订单信息" v-loading="payOrderLoading">
+      <el-descriptions-item label="支付单号(ID): ">{{ payOrder.id }}</el-descriptions-item>
+      <el-descriptions-item v-if="payOrder.no" label="支付单号(no): ">
+        <el-tag type="warning" size="small">{{ payOrder.no }}</el-tag>
+      </el-descriptions-item>
+      <el-descriptions-item label="支付状态: ">
+        <dict-tag :type="DICT_TYPE.PAY_ORDER_STATUS" :value="payOrder.status" />
+      </el-descriptions-item>
+      <el-descriptions-item label="支付渠道: ">
+        <dict-tag :type="DICT_TYPE.PAY_CHANNEL_CODE" :value="payOrder.channelCode" />
+      </el-descriptions-item>
+      <el-descriptions-item label="支付金额: ">{{ fenToYuan(payOrder.amount) }} 元</el-descriptions-item>
+      <el-descriptions-item label="手续费比例: ">
+        {{ typeof payOrder.channelFeeRate === 'number' ? payOrder.channelFeeRate.toFixed(2) : payOrder.channelFeeRate }}%
+      </el-descriptions-item>
+      <el-descriptions-item label="手续费金额: ">{{ fenToYuan(payOrder.channelFeeAmount) }} 元</el-descriptions-item>
+      <el-descriptions-item label="支付时间: ">{{ formatDate(payOrder.successTime) }}</el-descriptions-item>
+      <el-descriptions-item label="创建时间: ">{{ formatDate(payOrder.createTime) }}</el-descriptions-item>
+      <el-descriptions-item v-if="payOrderExtensionNo" label="扩展 no: ">
+        {{ payOrderExtensionNo }}
+      </el-descriptions-item>
+      <el-descriptions-item v-if="payOrderChannelOrderNo" label="渠道单号: ">
+        {{ payOrderChannelOrderNo }}
+      </el-descriptions-item>
+      <el-descriptions-item v-if="payOrderChannelNotifyData" label="回调内容: " :span="2">
+        <el-text style="white-space: pre-wrap; word-break: break-word">
+          {{ payOrderChannelNotifyData }}
+        </el-text>
+      </el-descriptions-item>
+    </el-descriptions>
+
     <!-- 订单状态 -->
     <el-descriptions :column="1" title="订单状态">
       <el-descriptions-item label="订单状态: ">
@@ -224,6 +255,7 @@
 </template>
 <script lang="ts" setup>
 import * as TradeOrderApi from '@/api/mall/trade/order'
+import * as PayOrderApi from '@/api/pay/order'
 import { fenToYuan } from '@/utils'
 import { formatDate } from '@/utils/formatTime'
 import { DICT_TYPE, getDictLabel, getDictObj } from '@/utils/dict'
@@ -261,6 +293,71 @@ const getUserTypeColor = (type: number) => {
 const formData = ref<TradeOrderApi.OrderVO>({
   logs: []
 })
+const payOrderLoading = ref(false)
+type PayOrderDetailVO = PayOrderApi.OrderVO & {
+  no?: string
+  extension?: unknown
+}
+const payOrder = ref<PayOrderDetailVO>()
+
+const parseMaybeJson = (value: unknown): unknown => {
+  if (!value) return undefined
+  if (typeof value !== 'string') return value
+  const trimmed = value.trim()
+  if (!trimmed) return undefined
+  try {
+    const parsed = JSON.parse(trimmed)
+    if (typeof parsed === 'string') return parseMaybeJson(parsed)
+    return parsed
+  } catch {
+    return value
+  }
+}
+const stringifyJson = (value: unknown): string => {
+  if (value === undefined || value === null) return ''
+  if (typeof value === 'string') return value
+  try {
+    return JSON.stringify(value, null, 2)
+  } catch {
+    return String(value)
+  }
+}
+
+const payOrderExtension = computed<Record<string, any>>(() => {
+  const ext = parseMaybeJson(payOrder.value?.extension)
+  if (!ext || typeof ext !== 'object') return {}
+  return ext as Record<string, any>
+})
+const payOrderExtensionNo = computed<string>(() => {
+  const no = payOrderExtension.value?.no
+  return no ? String(no) : ''
+})
+const payOrderChannelOrderNo = computed<string>(() => {
+  const channelOrderNo = payOrderExtension.value?.channelOrderNo || (payOrder.value as any)?.channelOrderNo
+  return channelOrderNo ? String(channelOrderNo) : ''
+})
+const payOrderChannelNotifyData = computed<string>(() => {
+  const data = payOrderExtension.value?.channelNotifyData
+  const parsed = parseMaybeJson(data)
+  return stringifyJson(parsed)
+})
+
+const getPayOrder = async () => {
+  const payOrderId = formData.value.payOrderId
+  if (payOrderId === undefined || payOrderId === null) {
+    payOrder.value = undefined
+    return
+  }
+  payOrderLoading.value = true
+  try {
+    payOrder.value = await PayOrderApi.getOrderDetail(Number(payOrderId))
+    if (payOrder.value && !payOrder.value.extension) {
+      payOrder.value.extension = {}
+    }
+  } finally {
+    payOrderLoading.value = false
+  }
+}
 
 /** 各种操作 */
 const updateRemarkForm = ref() // 订单备注表单 Ref
@@ -309,6 +406,7 @@ const getDetail = async () => {
       close()
     }
     formData.value = res
+    await getPayOrder()
   }
 }
 

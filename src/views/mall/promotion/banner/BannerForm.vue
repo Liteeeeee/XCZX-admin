@@ -19,8 +19,25 @@
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="图片" prop="picUrl">
-            <UploadImg v-model="formData.picUrl" />
+          <el-form-item :label="isCategoryPosition ? '图片/视频' : '图片'" prop="picUrl">
+            <UploadFile
+              v-if="isCategoryPosition"
+              v-model="formData.picUrl"
+              :file-type="categoryBannerFileTypes"
+              :file-size="200"
+              :limit="1"
+              directory="banner"
+            />
+            <UploadImg v-else v-model="formData.picUrl" />
+            <el-link
+              v-if="isCategoryPosition && isVideoUrl(formData.picUrl)"
+              :href="formData.picUrl"
+              class="mt-6px"
+              target="_blank"
+              type="primary"
+            >
+              预览视频
+            </el-link>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -116,6 +133,20 @@ const formRules = reactive({
   extra: [{ max: 2048, message: '扩展字段长度不能超过 2048', trigger: 'blur' }]
 })
 const formRef = ref() // 表单 Ref
+const categoryBannerPositionValues = computed<number[]>(() => {
+  return getIntDictOptions(DICT_TYPE.PROMOTION_BANNER_POSITION)
+    .filter((item) => item.label?.includes('分类'))
+    .map((item) => item.value as number)
+})
+const isCategoryPosition = computed(() => {
+  return categoryBannerPositionValues.value.includes(formData.value.position)
+})
+const categoryBannerFileTypes = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'm3u8']
+const isVideoUrl = (url?: string) => {
+  if (!url) return false
+  const normalized = String(url).split('?')[0].toLowerCase()
+  return ['.mp4', '.mov', '.m3u8'].some((ext) => normalized.endsWith(ext))
+}
 
 /** 打开弹窗 */
 const open = async (type: string, id?: number) => {
