@@ -1,4 +1,5 @@
 import type { CrudSchema } from '@/hooks/web/useCrudSchemas'
+import { DICT_TYPE } from '@/utils/dict'
 
 // 表单校验
 export const rules = reactive({
@@ -17,6 +18,18 @@ const crudSchemas = reactive<CrudSchema[]>([
     },
     table: {
       width: 80
+    }
+  },
+  {
+    label: '会员专属',
+    field: 'memberOnly',
+    dictType: DICT_TYPE.INFRA_BOOLEAN_STRING,
+    dictClass: 'boolean',
+    isSearch: false,
+    isTable: false,
+    form: {
+      component: 'Radio',
+      value: false
     }
   },
   {

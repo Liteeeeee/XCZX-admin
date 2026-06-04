@@ -6,6 +6,7 @@ export interface PointActivityVO {
   id: number // 积分商城活动编号
   spuId: number // 积分商城活动商品
   status: number // 活动状态
+  memberOnly?: boolean // 是否会员专属兑换
   stock: number // 积分商城活动库存
   totalStock: number // 积分商城活动总库存
   remark?: string // 备注
@@ -87,5 +88,112 @@ export const PointActivityApi = {
   // 关闭秒杀活动
   closePointActivity: async (id: number) => {
     return await request.put({ url: '/promotion/point-activity/close?id=' + id })
+  }
+}
+
+export interface PointCouponExchangeSaveReqVO {
+  id?: number
+  name?: string
+  picUrl?: string
+  description?: string
+  notice?: string
+  info?: string
+  couponTemplateId?: number
+  point?: number
+  sort?: number
+  remark?: string
+  totalCount?: number
+  takeLimitCount?: number
+}
+
+export interface PointCouponExchangeRespVO {
+  id: number
+  name: string
+  picUrl: string
+  description: string
+  notice: string
+  info: string
+  couponTemplateId: number
+  couponTemplateName: string
+  couponTemplateDescription: string
+  discountType: number
+  discountPrice: number
+  discountPercent: number
+  usePrice: number
+  point: number
+  status: number
+  sort: number
+  remark: string
+  totalCount: number
+  exchangedCount: number
+  takeLimitCount: number
+  createTime: string
+}
+
+export interface PointCouponExchangeRecordRespVO {
+  id: number
+  exchangeId: number
+  exchangeName: string
+  userId: number
+  couponTemplateId: number
+  couponId: number
+  couponName: string
+  couponStatus: number
+  discountType: number
+  discountPrice: number
+  discountPercent: number
+  point: number
+  requestNo: string
+  status: number
+  errorMsg: string
+  createTime: string
+}
+
+export const PointCouponExchangeApi = {
+  createPointCouponExchange: async (data: PointCouponExchangeSaveReqVO) => {
+    return await request.post({ url: `/promotion/point-coupon-exchange/create`, data })
+  },
+
+  updatePointCouponExchange: async (data: PointCouponExchangeSaveReqVO) => {
+    return await request.put({ url: `/promotion/point-coupon-exchange/update`, data })
+  },
+
+  updatePointCouponExchangeStatus: async (id: number, status: number) => {
+    return await request.put({
+      url: `/promotion/point-coupon-exchange/update-status`,
+      params: { id, status }
+    })
+  },
+
+  deletePointCouponExchange: async (id: number) => {
+    return await request.delete({ url: `/promotion/point-coupon-exchange/delete?id=` + id })
+  },
+
+  getPointCouponExchange: async (id: number) => {
+    return await request.get({ url: `/promotion/point-coupon-exchange/get?id=` + id })
+  },
+
+  getPointCouponExchangePage: async (params: PageParam) => {
+    return await request.get({ url: `/promotion/point-coupon-exchange/page`, params })
+  },
+
+  getPointCouponExchangeList: async (params: any) => {
+    return await request.get({ url: `/promotion/point-coupon-exchange/list`, params })
+  },
+
+  getPointCouponExchangeListByIds: async (ids: number[]) => {
+    return await request.get({ url: `/promotion/point-coupon-exchange/list-by-ids?ids=${ids}` })
+  },
+
+  getPointCouponExchangeRecord: async (id: number) => {
+    return await request.get({ url: `/promotion/point-coupon-exchange/record/get?id=` + id })
+  },
+
+  getPointCouponExchangeRecordPage: async (params: PageParam) => {
+    return await request.get({ url: `/promotion/point-coupon-exchange/record/page`, params })
+  },
+
+  getPointCouponExchangeRecordList: async (params: any) => {
+    return await request.get({ url: `/promotion/point-coupon-exchange/record/list`, params })
   }
 }
