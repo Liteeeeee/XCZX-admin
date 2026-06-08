@@ -45,7 +45,7 @@
       <el-table-column label="昵称" align="center" prop="nickname" min-width="80px" />
       <el-table-column label="等级" align="center" prop="level" min-width="80px">
         <template #default="scope">
-          <el-tag v-if="scope.row.bindUserId === bindUserId">一级</el-tag>
+          <el-tag v-if="scope.row.bindUserId == bindUserId">一级</el-tag>
           <el-tag v-else>二级</el-tag>
         </template>
       </el-table-column>
