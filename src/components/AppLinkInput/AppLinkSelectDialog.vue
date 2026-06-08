@@ -56,7 +56,6 @@
       >
         <ProductCategorySelect
           v-model="detailSelectDialog.id"
-          :parent-id="0"
           @update:model-value="handleProductCategorySelected"
         />
       </el-form-item>
@@ -115,7 +114,9 @@ const handleAppLinkSelected = (appLink: AppLink) => {
       detailSelectDialog.value.type = appLink.type
       // 返显
       detailSelectDialog.value.id =
-        getUrlNumberValue('id', 'http://127.0.0.1' + activeAppLink.value.path) || undefined
+        getUrlNumberValue('categoryId', 'http://127.0.0.1' + activeAppLink.value.path) ||
+        getUrlNumberValue('id', 'http://127.0.0.1' + activeAppLink.value.path) ||
+        undefined
       break
     default:
       break
@@ -198,8 +199,8 @@ const detailSelectDialog = ref<{
 // 处理详情选择
 const handleProductCategorySelected = (id: number) => {
   const url = new URL(activeAppLink.value.path, 'http://127.0.0.1')
-  // 修改 id 参数
-  url.searchParams.set('id', `${id}`)
+  url.searchParams.delete('id')
+  url.searchParams.set('categoryId', `${id}`)
   // 排除域名
   activeAppLink.value.path = `${url.pathname}${url.search}`
   // 关闭对话框

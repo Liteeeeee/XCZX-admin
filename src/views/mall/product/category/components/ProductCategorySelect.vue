@@ -45,7 +45,11 @@ const emit = defineEmits(['update:modelValue'])
 const categoryList = ref<ProductCategoryApi.CategoryVO[]>([]) // 分类树
 onMounted(async () => {
   // 获得分类树
-  const data = await ProductCategoryApi.getCategoryList({ parentId: props.parentId })
+  const params: Record<string, any> = {}
+  if (props.parentId !== undefined) {
+    params.parentId = props.parentId
+  }
+  const data = await ProductCategoryApi.getCategoryList(params)
   categoryList.value = handleTree(data, 'id', 'parentId')
 })
 </script>
