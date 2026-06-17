@@ -163,6 +163,15 @@
               class="!w-240px"
             />
           </el-form-item>
+          <el-form-item label="手机号" prop="mobile">
+            <el-input
+              v-model="recordQueryParams.mobile"
+              placeholder="请输入手机号"
+              clearable
+              @keyup.enter="handleRecordQuery"
+              class="!w-240px"
+            />
+          </el-form-item>
           <el-form-item label="审核结果" prop="status">
             <el-select v-model="recordQueryParams.status" placeholder="请选择审核结果" clearable class="!w-240px">
               <el-option v-for="item in auditResultOptions" :key="item.value" :label="item.label" :value="item.value" />
@@ -198,6 +207,7 @@
           <el-table-column label="编号" align="left" prop="id" min-width="80px" />
           <el-table-column label="申请人编号" align="left" prop="userId" min-width="100px" />
           <el-table-column label="申请编号" align="left" prop="applyId" min-width="100px" />
+          <el-table-column label="手机号" align="left" prop="mobile" min-width="120px" />
           <el-table-column label="审核结果" align="left" prop="status" min-width="100px">
             <template #default="scope">
               <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
@@ -426,6 +436,7 @@ const recordQueryParams = reactive({
   pageNo: 1,
   pageSize: 10,
   userId: undefined,
+  mobile: undefined,
   applyId: undefined,
   status: undefined,
   auditUserId: undefined,

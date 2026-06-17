@@ -33,6 +33,7 @@ export interface BrokerageApplyAuditReqVO {
 export interface BrokerageAuditRecordVO {
   id: number
   userId: number
+  mobile: string
   applyId: number
   status: number
   auditUserId: number
