@@ -3,6 +3,8 @@ import request from '@/config/axios'
 export interface BrokerageApplyVO {
   id: number
   userId: number
+  nickname: string
+  mobile: string
   provinceId: number
   cityId: number
   occupation: string

@@ -43,6 +43,15 @@
               class="!w-240px"
             />
           </el-form-item>
+          <el-form-item label="手机号" prop="mobile">
+            <el-input
+              v-model="applyQueryParams.mobile"
+              placeholder="请输入手机号"
+              clearable
+              @keyup.enter="handleApplyQuery"
+              class="!w-240px"
+            />
+          </el-form-item>
           <el-form-item label="创建时间" prop="createTime">
             <el-date-picker
               v-model="applyQueryParams.createTime"
@@ -63,6 +72,8 @@
         <el-table v-loading="applyLoading" :data="applyList" :stripe="true" :show-overflow-tooltip="true">
           <el-table-column label="编号" align="left" prop="id" min-width="80px" />
           <el-table-column label="申请人编号" align="left" prop="userId" min-width="100px" />
+          <el-table-column label="用户昵称" align="left" prop="nickname" min-width="120px" />
+          <el-table-column label="手机号" align="left" prop="mobile" min-width="120px" />
           <el-table-column label="省份ID" align="left" prop="provinceId" min-width="90px" />
           <el-table-column label="城市ID" align="left" prop="cityId" min-width="90px" />
           <el-table-column label="职业" align="left" prop="occupation" min-width="120px">
@@ -282,6 +293,7 @@ const applyQueryParams = reactive({
   provinceId: undefined,
   cityId: undefined,
   leaderName: undefined,
+  mobile: undefined,
   createTime: undefined
 })
 const applyQueryFormRef = ref()

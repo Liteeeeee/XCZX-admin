@@ -64,6 +64,50 @@ export const getRawRoute = (route: RouteLocationNormalized): RouteLocationNormal
 export const generateRoute = (routes: AppCustomRouteRecordRaw[]): AppRouteRecordRaw[] => {
   const res: AppRouteRecordRaw[] = []
   const modulesRoutesKeys = Object.keys(modules)
+  const getModuleKey = (routePath: string, componentPath?: string) => {
+    const candidates: string[] = []
+    const push = (val?: string) => {
+      if (!val) return
+      if (candidates.includes(val)) return
+      candidates.push(val)
+    }
+    push(componentPath)
+    push(componentPath?.replace(/^@\/views\//, '../views/'))
+    push(componentPath?.replace(/^\/?views\//, '../views/'))
+    push(routePath)
+    push(routePath?.replace(/\/$/, ''))
+    const findKey = (matcher: string) => {
+      return modulesRoutesKeys.find((ev) => ev === matcher || ev.endsWith(matcher))
+    }
+    for (const cand of candidates) {
+      const prefer: string[] = []
+      const addPrefer = (val?: string) => {
+        if (!val) return
+        if (prefer.includes(val)) return
+        prefer.push(val)
+      }
+      addPrefer(cand)
+      if (!cand.endsWith('.vue') && !cand.endsWith('.tsx')) {
+        addPrefer(`${cand}/index.vue`)
+        addPrefer(`${cand}/index.tsx`)
+        addPrefer(`${cand}/index`)
+        addPrefer(`${cand}.vue`)
+        addPrefer(`${cand}.tsx`)
+      }
+      for (const p of prefer) {
+        const key = findKey(p)
+        if (key) return key
+      }
+      const index = modulesRoutesKeys.findIndex((ev) => ev.includes(cand))
+      if (index > -1) return modulesRoutesKeys[index]
+    }
+    return ''
+  }
+  const getNotFoundModuleKey = () => {
+    const index = modulesRoutesKeys.findIndex((ev) => ev.includes('/Error/404.vue'))
+    return index > -1 ? modulesRoutesKeys[index] : ''
+  }
+  const notFoundModuleKey = getNotFoundModuleKey()
   for (const route of routes) {
     // 1. 生成 meta 菜单元数据
     const meta = {
@@ -87,11 +131,14 @@ export const generateRoute = (routes: AppCustomRouteRecordRaw[]): AppRouteRecord
 
     // 2. 生成 data（AppRouteRecordRaw）
     // 路由地址转首字母大写驼峰，作为路由名称，适配keepAlive
+    const rawPath =
+      route.path.indexOf('?') > -1 && !isUrl(route.path) ? route.path.split('?')[0] : route.path
+    const routePath =
+      route.parentId == 0 && !isUrl(rawPath) && !rawPath.startsWith('/') ? `/${rawPath}` : rawPath
     let data: AppRouteRecordRaw = {
-      path:
-        route.path.indexOf('?') > -1 && !isUrl(route.path) ? route.path.split('?')[0] : route.path, // 注意，需要排除 http 这种 url，避免它带 ? 参数被截取掉
+      path: routePath, // 注意，需要排除 http 这种 url，避免它带 ? 参数被截取掉
       name:
-        route.componentName && route.componentName.length > 0
+        route.componentName && route.componentName.length > 0 && route.componentName.indexOf('/') === -1
           ? route.componentName
           : toCamelCase(route.path, true),
       redirect: route.redirect,
@@ -115,10 +162,8 @@ export const generateRoute = (routes: AppCustomRouteRecordRaw[]): AppRouteRecord
         redirect: route.redirect,
         meta: meta
       }
-      const index = route?.component
-        ? modulesRoutesKeys.findIndex((ev) => ev.includes(route.component))
-        : modulesRoutesKeys.findIndex((ev) => ev.includes(route.path))
-      childrenData.component = modules[modulesRoutesKeys[index]]
+      const moduleKey = getModuleKey(route.path, route.component)
+      childrenData.component = modules[moduleKey] || modules[notFoundModuleKey]
       data.children = [childrenData]
     } else {
       // 目录
@@ -138,10 +183,8 @@ export const generateRoute = (routes: AppCustomRouteRecordRaw[]): AppRouteRecord
         // 菜单
       } else {
         // 对后端传component组件路径和不传做兼容（如果后端传component组件路径，那么path可以随便写，如果不传，component组件路径会根path保持一致）
-        const index = route?.component
-          ? modulesRoutesKeys.findIndex((ev) => ev.includes(route.component))
-          : modulesRoutesKeys.findIndex((ev) => ev.includes(route.path))
-        data.component = modules[modulesRoutesKeys[index]]
+        const moduleKey = getModuleKey(route.path, route.component)
+        data.component = modules[moduleKey] || modules[notFoundModuleKey]
       }
       if (route.children) {
         data.children = generateRoute(route.children)
