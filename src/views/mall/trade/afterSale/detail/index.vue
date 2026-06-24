@@ -75,7 +75,15 @@
           确认收货
         </el-button>
         <el-button v-if="formData.status === 30" type="primary" @click="refuse">拒绝收货</el-button>
-        <el-button v-if="formData.status === 40" type="primary" @click="refund">确认退款</el-button>
+        <el-button
+          v-if="formData.status === 40"
+          type="primary"
+          :loading="refundActionLoading"
+          :disabled="refundLocked"
+          @click="refund"
+        >
+          确认退款
+        </el-button>
       </el-descriptions-item>
       <el-descriptions-item>
         <template #label><span style="color: red">提醒: </span></template>
@@ -179,7 +187,7 @@
   <!-- 各种操作的弹窗 -->
   <UpdateAuditReasonForm ref="updateAuditReasonFormRef" @success="getDetail" />
   <AfterSaleRefuseForm ref="refuseFormRef" @success="getDetail" />
-  <AfterSaleRefundForm ref="refundFormRef" @success="getDetail" />
+  <AfterSaleRefundForm ref="refundFormRef" @success="handleRefundSuccess" />
 </template>
 <script lang="ts" setup>
 import * as AfterSaleApi from '@/api/mall/trade/afterSale/index'
@@ -206,6 +214,8 @@ const formData = ref<any>({
 const updateAuditReasonFormRef = ref() // 拒绝售后表单 Ref
 const refuseFormRef = ref() // 拒绝收货表单 Ref
 const refundFormRef = ref() // 确认退款表单 Ref
+const refundLocked = ref(false)
+const refundActionLoading = ref(false)
 const historyLoading = ref(false)
 const historyList = ref([])
 
@@ -236,6 +246,9 @@ const getDetail = async () => {
       close()
     }
     formData.value = res
+    if (res?.status !== 40) {
+      refundLocked.value = false
+    }
     await getHistory()
   }
 }
@@ -292,7 +305,18 @@ const refuse = async () => {
 
 /** 确认退款 */
 const refund = async () => {
-  refundFormRef.value?.open(formData.value)
+  if (refundLocked.value || refundActionLoading.value) return
+  refundActionLoading.value = true
+  try {
+    await refundFormRef.value?.open(formData.value)
+  } finally {
+    refundActionLoading.value = false
+  }
+}
+
+const handleRefundSuccess = async () => {
+  refundLocked.value = true
+  await getDetail()
 }
 
 /** 图片预览 */
