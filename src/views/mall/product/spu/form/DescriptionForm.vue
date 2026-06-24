@@ -5,7 +5,13 @@
       <UploadImg v-model="formData.qualificationCover" :disabled="isDetail" height="80px" />
     </el-form-item>
     <el-form-item label="资质检测详情" prop="qualificationDetection">
-      <Editor v-model="formData.qualificationDetection" height="800" />
+      <UploadFile
+        v-model="qualificationDetectionFileUrl"
+        :disabled="isDetail"
+        :file-type="['pdf']"
+        :file-size="20"
+        :limit="1"
+      />
     </el-form-item>
     <!--富文本编辑器组件-->
     <el-form-item label="商品详情" prop="description">
@@ -43,14 +49,29 @@ const rules = reactive({
   // description: [required]
 })
 
+const qualificationDetectionFileUrl = computed({
+  get: () => {
+    const value = formData.value.qualificationDetection
+    if (!value) return ''
+    const str = String(value).trim()
+    if (!str) return ''
+    if (str === 'null' || str === 'undefined') return ''
+    if (str.includes('<') || str.includes('>')) return ''
+    return str.split(',')[0]
+  },
+  set: (val: string) => {
+    formData.value.qualificationDetection = (val || '').trim()
+  }
+})
+
 /** 富文本编辑器如果输入过再清空会有残留，需再重置一次 */
 watch(
-  () => formData.value.description,
-  (newValue) => {
-    if ('<p><br></p>' === newValue) {
+  () => [formData.value.description, formData.value.qualificationDetection],
+  ([description, qualificationDetection]) => {
+    if ('<p><br></p>' === description) {
       formData.value.description = ''
     }
-    if (formData.value.qualificationDetection === '<p><br></p>') {
+    if (qualificationDetection === '<p><br></p>') {
       formData.value.qualificationDetection = ''
     }
   },

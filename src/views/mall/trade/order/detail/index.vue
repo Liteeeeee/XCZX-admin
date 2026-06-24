@@ -45,11 +45,6 @@
       <el-descriptions-item v-if="payOrderChannelOrderNo" label="渠道单号: ">
         {{ payOrderChannelOrderNo }}
       </el-descriptions-item>
-      <el-descriptions-item v-if="payOrderChannelNotifyData" label="回调内容: " :span="2">
-        <el-text style="white-space: pre-wrap; word-break: break-word">
-          {{ payOrderChannelNotifyData }}
-        </el-text>
-      </el-descriptions-item>
     </el-descriptions>
 
     <!-- 订单状态 -->

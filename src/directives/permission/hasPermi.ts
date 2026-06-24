@@ -23,9 +23,13 @@ export function hasPermi(app: App<Element>) {
 /** 判断权限的方法 function */
 const userStore = useUserStore()
 const all_permission = '*:*:*'
+const super_admin = 'super_admin'
+const wildcard_permission = '*'
 export const hasPermission = (permission: string[]) => {
   return (
+    userStore.roles.includes(super_admin) ||
     userStore.permissions.has(all_permission) ||
+    userStore.permissions.has(wildcard_permission) ||
     permission.some((permission) => userStore.permissions.has(permission))
   )
 }

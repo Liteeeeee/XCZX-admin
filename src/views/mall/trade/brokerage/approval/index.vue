@@ -16,24 +16,6 @@
               <el-option v-for="item in applyStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
-          <el-form-item label="省份ID" prop="provinceId">
-            <el-input
-              v-model="applyQueryParams.provinceId"
-              placeholder="请输入省份ID"
-              clearable
-              @keyup.enter="handleApplyQuery"
-              class="!w-240px"
-            />
-          </el-form-item>
-          <el-form-item label="城市ID" prop="cityId">
-            <el-input
-              v-model="applyQueryParams.cityId"
-              placeholder="请输入城市ID"
-              clearable
-              @keyup.enter="handleApplyQuery"
-              class="!w-240px"
-            />
-          </el-form-item>
           <el-form-item label="负责人" prop="leaderName">
             <el-input
               v-model="applyQueryParams.leaderName"
@@ -74,14 +56,16 @@
           <el-table-column label="申请人编号" align="left" prop="userId" min-width="100px" />
           <el-table-column label="用户昵称" align="left" prop="nickname" min-width="120px" />
           <el-table-column label="手机号" align="left" prop="mobile" min-width="120px" />
-          <el-table-column label="省份ID" align="left" prop="provinceId" min-width="90px" />
-          <el-table-column label="城市ID" align="left" prop="cityId" min-width="90px" />
           <el-table-column label="职业" align="left" prop="occupation" min-width="120px">
             <template #default="scope">
               {{ getDictLabel(DICT_TYPE.OCCUPATION, scope.row.occupation) }}
             </template>
           </el-table-column>
-          <el-table-column label="补充信息" align="left" prop="additionalInfo" min-width="140px" />
+          <el-table-column label="补充信息" align="left" prop="additionalInfo" min-width="140px">
+            <template #default="scope">
+              {{ getAdditionalReason(scope.row.additionalInfo) }}
+            </template>
+          </el-table-column>
           <el-table-column label="重提次数" align="left" prop="resubmitCount" min-width="80px" />
           <el-table-column label="状态" align="left" prop="status" min-width="80px">
             <template #default="scope">
@@ -237,8 +221,6 @@
     <el-descriptions :column="2" border v-loading="detailLoading">
       <el-descriptions-item label="申请编号">{{ detailData?.id }}</el-descriptions-item>
       <el-descriptions-item label="申请人编号">{{ detailData?.userId }}</el-descriptions-item>
-      <el-descriptions-item label="省份ID">{{ detailData?.provinceId }}</el-descriptions-item>
-      <el-descriptions-item label="城市ID">{{ detailData?.cityId }}</el-descriptions-item>
       <el-descriptions-item label="职业">
         {{ getDictLabel(DICT_TYPE.OCCUPATION, detailData?.occupation) }}
       </el-descriptions-item>
@@ -300,8 +282,6 @@ const applyQueryParams = reactive({
   pageNo: 1,
   pageSize: 10,
   status: undefined,
-  provinceId: undefined,
-  cityId: undefined,
   leaderName: undefined,
   mobile: undefined,
   createTime: undefined
@@ -378,22 +358,15 @@ const parseAdditionalInfo = (value: unknown): Record<string, unknown> | undefine
     return undefined
   }
 }
+
+const getAdditionalReason = (value: unknown): string => {
+  const parsed = parseAdditionalInfo(value)
+  if (parsed && 'reason' in parsed) return String(parsed.reason ?? '')
+  return typeof value === 'string' ? value : ''
+}
+
 const additionalInfoDisplay = computed(() => {
-  const raw = detailData.value?.additionalInfo
-  const parsed = parseAdditionalInfo(raw)
-  if (!parsed) return raw || ''
-  const entries = Object.entries(parsed).filter(([key]) => key !== 'qualificationImages')
-  if (!entries.length) return ''
-  if (entries.length === 1 && entries[0][0] === 'reason') return String(entries[0][1] ?? '')
-  return entries
-    .map(([key, value]) => {
-      if (value === null || value === undefined) return `${key}: `
-      if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-        return `${key}: ${value}`
-      }
-      return `${key}: ${JSON.stringify(value)}`
-    })
-    .join('\n')
+  return getAdditionalReason(detailData.value?.additionalInfo)
 })
 const qualificationImages = computed<string[]>(() => {
   const cdnBaseUrl = 'https://xiancao.oss-cn-beijing.aliyuncs.com'
