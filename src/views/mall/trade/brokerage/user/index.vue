@@ -308,7 +308,7 @@ const handleGenerateSpecialQrcode = async () => {
   try {
     const res = await PromoterApi.generateWxaQrcode({
       scene: `is_special=1`, // 根据要求，参数为 is_special=1
-      path: 'pages/index/index',
+      path: 'pages/index/login',
       width: 430,
       envVersion: 'release' // 指定生成正式版小程序码
     })

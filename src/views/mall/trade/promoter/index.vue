@@ -191,7 +191,7 @@ const handleBatchDownloadQrcode = async () => {
       try {
         const res = await PromoterApi.generateWxaQrcode({
           scene: `promotionId=${row.id}`,
-          path: 'pages/index/index',
+          path: 'pages/index/login',
           width: 430,
           envVersion: 'release' // 指定生成正式版小程序码
         })
