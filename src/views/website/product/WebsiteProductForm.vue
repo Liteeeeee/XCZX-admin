@@ -135,7 +135,11 @@ const open = async (type: string, id?: number) => {
   if (!id) return
   formLoading.value = true
   try {
-    formData.value = (await WebsiteProductApi.getWebsiteProduct(id)) as any
+    const data = (await WebsiteProductApi.getWebsiteProduct(id)) as any
+    if (data.openTime === 0 || data.openTime === '0') {
+      data.openTime = undefined
+    }
+    formData.value = data
   } finally {
     formLoading.value = false
   }
@@ -170,7 +174,13 @@ const submitForm = async () => {
   if (!valid) return
   formLoading.value = true
   try {
-    const data = formData.value as unknown as WebsiteProductApi.WebsiteProductVO
+    const data = {
+      ...formData.value,
+      openTime:
+        !formData.value.openTime || formData.value.openTime === (0 as any) || formData.value.openTime === ('0' as any)
+          ? null
+          : formData.value.openTime
+    } as unknown as WebsiteProductApi.WebsiteProductVO
     if (formType.value === 'create') {
       await WebsiteProductApi.createWebsiteProduct(data)
       message.success(t('common.createSuccess'))

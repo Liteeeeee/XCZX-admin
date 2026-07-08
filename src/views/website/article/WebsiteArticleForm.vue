@@ -178,7 +178,11 @@ const open = async (type: string, id?: number) => {
   if (!id) return
   formLoading.value = true
   try {
-    formData.value = (await WebsiteArticleApi.getWebsiteArticle(id)) as any
+    const data = (await WebsiteArticleApi.getWebsiteArticle(id)) as any
+    if (data.publishTime === 0 || data.publishTime === '0') {
+      data.publishTime = undefined
+    }
+    formData.value = data
   } finally {
     formLoading.value = false
   }
@@ -193,7 +197,13 @@ const submitForm = async () => {
   if (!valid) return
   formLoading.value = true
   try {
-    const data = formData.value as unknown as WebsiteArticleApi.WebsiteArticleVO
+    const data = {
+      ...formData.value,
+      publishTime:
+        !formData.value.publishTime || formData.value.publishTime === (0 as any) || formData.value.publishTime === ('0' as any)
+          ? null
+          : formData.value.publishTime
+    } as unknown as WebsiteArticleApi.WebsiteArticleVO
     if (formType.value === 'create') {
       await WebsiteArticleApi.createWebsiteArticle(data)
       message.success(t('common.createSuccess'))
