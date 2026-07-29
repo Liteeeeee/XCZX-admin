@@ -40,6 +40,11 @@ export const deletePromoter = async (id: number) => {
   return await request.delete({ url: `/trade/promoter/delete?id=` + id })
 }
 
+// 创建 CRM 用户
+export const createPromoterAccount = async (promoterId: number) => {
+  return await request.post({ url: `/trade/promoter/create-account?promoterId=` + promoterId })
+}
+
 // 获得推广员导入模板
 export const importPromoterTemplate = async () => {
   return await request.get({ url: `/trade/promoter/get-import-template` })

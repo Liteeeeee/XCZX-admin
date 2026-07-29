@@ -101,10 +101,18 @@
         width="180"
       />
       <el-table-column label="备注" align="center" prop="remark" />
-      <el-table-column label="操作" align="center" width="200" fixed="right">
+      <el-table-column label="操作" align="center" width="300" fixed="right">
         <template #default="scope">
           <el-button link type="primary" @click="openQrcodeForm(scope.row.id, scope.row.name)">
             推广码
+          </el-button>
+          <el-button
+            link
+            type="primary"
+            @click="handleCreateAccount(scope.row.id)"
+            :loading="createAccountLoading[scope.row.id]"
+          >
+            创建 CRM 用户
           </el-button>
           <el-button
             link
@@ -171,6 +179,7 @@ const queryFormRef = ref() // 搜索的表单
 
 const selectedRows = ref<any[]>([]) // 选中的行
 const selectedIds = computed(() => selectedRows.value.map((row) => row.id))
+const createAccountLoading = reactive<Record<number, boolean>>({})
 
 /** 多选操作 */
 const handleSelectionChange = (rows: any[]) => {
@@ -280,6 +289,20 @@ const handleDelete = async (id: number) => {
     // 刷新列表
     await getList()
   } catch {}
+}
+
+/** 创建 CRM 用户操作 */
+const handleCreateAccount = async (id: number) => {
+  try {
+    await message.confirm('确认要为该推广员创建 CRM 用户吗？')
+    createAccountLoading[id] = true
+    await PromoterApi.createPromoterAccount(id)
+    message.success('创建 CRM 用户成功')
+    await getList()
+  } catch {
+  } finally {
+    createAccountLoading[id] = false
+  }
 }
 
 /** 初始化 **/
