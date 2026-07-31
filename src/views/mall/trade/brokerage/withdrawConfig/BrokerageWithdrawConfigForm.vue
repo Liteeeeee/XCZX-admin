@@ -59,7 +59,7 @@
       </el-form-item>
       <el-form-item label="提现服务开始时间" prop="withdrawStartTime">
         <el-time-picker
-          v-model="formData.withdrawStartTime"
+          v-model="formData.applyStartTime"
           value-format="HH:mm:ss"
           format="HH:mm:ss"
           class="!w-xs"
@@ -68,7 +68,7 @@
       </el-form-item>
       <el-form-item label="提现服务结束时间" prop="withdrawEndTime">
         <el-time-picker
-          v-model="formData.withdrawEndTime"
+          v-model="formData.applyEndTime"
           value-format="HH:mm:ss"
           format="HH:mm:ss"
           class="!w-xs"
@@ -121,6 +121,27 @@ defineOptions({ name: 'BrokerageWithdrawConfigForm' })
 const { t } = useI18n()
 const message = useMessage()
 
+const pad2 = (n: number) => String(n ?? 0).padStart(2, '0')
+
+const timeArrayToString = (val: any): string => {
+  if (!val) return ''
+  if (typeof val === 'string') return val
+  if (Array.isArray(val)) {
+    const [h = 0, m = 0, s = 0] = val
+    return `${pad2(h)}:${pad2(m)}:${pad2(s)}`
+  }
+  return ''
+}
+
+const timeStringToArray = (val: string): number[] => {
+  if (!val) return [0, 0, 0]
+  const parts = String(val)
+    .split(':')
+    .map((x) => parseInt(x, 10) || 0)
+  while (parts.length < 3) parts.push(0)
+  return parts.slice(0, 3)
+}
+
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const formLoading = ref(false)
@@ -133,8 +154,8 @@ const formData = ref({
   withdrawFeeRate: 0,
   withdrawDescription: '',
   otherDescription: '',
-  withdrawStartTime: '09:00:00',
-  withdrawEndTime: '18:00:00',
+  applyStartTime: '09:00:00',
+  applyEndTime: '18:00:00',
   dailyWithdrawLimit: 0,
   linggongProjectCode: '',
   remark: '',
@@ -164,13 +185,13 @@ const open = async (type: 'create' | 'update', id?: number) => {
       formData.value = {
         id: res.id,
         code: res.code || '',
-        withdrawMinPrice: parseFloat(fenToYuan(res.withdrawMinPrice || 0)),
-        withdrawMaxPrice: parseFloat(fenToYuan(res.withdrawMaxPrice || 0)),
+        withdrawMinPrice: parseFloat(fenToYuan(res.withdrawMinPrice || 0)) || 0,
+        withdrawMaxPrice: parseFloat(fenToYuan(res.withdrawMaxPrice || 0)) || 0,
         withdrawFeeRate: res.withdrawFeeRate || 0,
         withdrawDescription: res.withdrawDescription || '',
         otherDescription: res.otherDescription || '',
-        withdrawStartTime: res.withdrawStartTime || '09:00:00',
-        withdrawEndTime: res.withdrawEndTime || '18:00:00',
+        applyStartTime: timeArrayToString(res.applyStartTime) || '09:00:00',
+        applyEndTime: timeArrayToString(res.applyEndTime) || '18:00:00',
         dailyWithdrawLimit: res.dailyWithdrawLimit ?? 0,
         linggongProjectCode: res.linggongProjectCode || '',
         remark: res.remark || '',
@@ -196,6 +217,8 @@ const submitForm = async () => {
     ) as unknown as BrokerageWithdrawConfigApi.BrokerageWithdrawConfigVO
     data.withdrawMinPrice = convertToInteger(data.withdrawMinPrice)
     data.withdrawMaxPrice = convertToInteger(data.withdrawMaxPrice)
+    ;(data as any).applyStartTime = timeStringToArray(formData.value.applyStartTime)
+    ;(data as any).applyEndTime = timeStringToArray(formData.value.applyEndTime)
     if (formType.value === 'create') {
       await BrokerageWithdrawConfigApi.createBrokerageWithdrawConfig(data)
       message.success(t('common.createSuccess'))
@@ -219,8 +242,8 @@ const resetForm = () => {
     withdrawFeeRate: 0,
     withdrawDescription: '',
     otherDescription: '',
-    withdrawStartTime: '09:00:00',
-    withdrawEndTime: '18:00:00',
+    applyStartTime: '09:00:00',
+    applyEndTime: '18:00:00',
     dailyWithdrawLimit: 0,
     linggongProjectCode: '',
     remark: '',

@@ -8,8 +8,8 @@ export interface BrokerageWithdrawConfigVO {
   withdrawFeeRate?: number
   withdrawDescription?: string
   otherDescription?: string
-  withdrawStartTime?: string
-  withdrawEndTime?: string
+  applyStartTime?: string
+  applyEndTime?: string
   dailyWithdrawLimit?: number
   linggongProjectCode?: string
   remark?: string
@@ -23,7 +23,7 @@ export const getBrokerageWithdrawConfigPage = async (params: any) => {
 }
 
 export const getBrokerageWithdrawConfig = async (id: number) => {
-  return await request.get({ url: `/trade/brokerage-withdraw-config/get`, params: { id } })
+  return await request.get({ url: `/trade/brokerage-withdraw-config/get?id=` + id })
 }
 
 export const getBrokerageWithdrawConfigByCode = async (code: string) => {

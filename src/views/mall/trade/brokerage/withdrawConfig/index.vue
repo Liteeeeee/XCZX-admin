@@ -52,6 +52,20 @@
       <el-table-column align="center" label="提现费率(%)" prop="withdrawFeeRate" min-width="120px">
         <template #default="scope">{{ formatFeeRate(scope.row.withdrawFeeRate) }}</template>
       </el-table-column>
+      <el-table-column align="center" label="服务时间范围" min-width="180px">
+        <template #default="scope">
+          <div>开始：{{ formatTimeValue(scope.row.applyStartTime) }}</div>
+          <div>结束：{{ formatTimeValue(scope.row.applyEndTime) }}</div>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="每日申请次数" prop="dailyWithdrawLimit" min-width="130px">
+        <template #default="scope">
+          {{ scope.row.dailyWithdrawLimit == null || scope.row.dailyWithdrawLimit === 0 ? '不限制' : scope.row.dailyWithdrawLimit }}
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="灵工支付项目编码" prop="linggongProjectCode" min-width="180px">
+        <template #default="scope">{{ scope.row.linggongProjectCode || '-' }}</template>
+      </el-table-column>
       <el-table-column align="center" label="状态" prop="status" width="90px">
         <template #default="scope">
           <el-tag v-if="scope.row.status === CommonStatusEnum.ENABLE" type="success">启用</el-tag>
@@ -99,6 +113,17 @@ import BrokerageWithdrawConfigForm from './BrokerageWithdrawConfigForm.vue'
 import { CommonStatusEnum } from '@/utils/constants'
 
 defineOptions({ name: 'TradeBrokerageWithdrawConfig' })
+
+const pad2 = (n: number) => String(n ?? 0).padStart(2, '0')
+const formatTimeValue = (val: any): string => {
+  if (!val) return '-'
+  if (typeof val === 'string') return val
+  if (Array.isArray(val)) {
+    const [h = 0, m = 0, s = 0] = val
+    return `${pad2(h)}:${pad2(m)}:${pad2(s)}`
+  }
+  return '-'
+}
 
 const loading = ref(true)
 const total = ref(0)
