@@ -57,6 +57,39 @@
           type="textarea"
         />
       </el-form-item>
+      <el-form-item label="提现服务开始时间" prop="withdrawStartTime">
+        <el-time-picker
+          v-model="formData.withdrawStartTime"
+          value-format="HH:mm:ss"
+          format="HH:mm:ss"
+          class="!w-xs"
+          placeholder="请选择开始时间"
+        />
+      </el-form-item>
+      <el-form-item label="提现服务结束时间" prop="withdrawEndTime">
+        <el-time-picker
+          v-model="formData.withdrawEndTime"
+          value-format="HH:mm:ss"
+          format="HH:mm:ss"
+          class="!w-xs"
+          placeholder="请选择结束时间"
+        />
+      </el-form-item>
+      <el-form-item label="每日提现申请次数" prop="dailyWithdrawCount">
+        <el-input-number
+          v-model="formData.dailyWithdrawCount"
+          :min="0"
+          :precision="0"
+          class="!w-xs"
+          placeholder="请输入每日最多申请次数"
+        />
+        <el-text class="w-full" size="small" type="info"
+          >每日最多可创建提现申请的次数，0 表示不限制</el-text
+        >
+      </el-form-item>
+      <el-form-item label="灵工支付项目编码" prop="flexiblePayProjectCode">
+        <el-input v-model="formData.flexiblePayProjectCode" placeholder="请输入灵工支付项目编码" />
+      </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="formData.remark" :rows="3" placeholder="请输入备注" type="textarea" />
       </el-form-item>
@@ -100,6 +133,10 @@ const formData = ref({
   withdrawFeeRate: 0,
   withdrawDescription: '',
   otherDescription: '',
+  withdrawStartTime: '09:00:00',
+  withdrawEndTime: '18:00:00',
+  dailyWithdrawCount: 0,
+  flexiblePayProjectCode: '',
   remark: '',
   status: CommonStatusEnum.ENABLE,
   sort: 1
@@ -132,6 +169,10 @@ const open = async (type: 'create' | 'update', id?: number) => {
         withdrawFeeRate: res.withdrawFeeRate || 0,
         withdrawDescription: res.withdrawDescription || '',
         otherDescription: res.otherDescription || '',
+        withdrawStartTime: res.withdrawStartTime || '09:00:00',
+        withdrawEndTime: res.withdrawEndTime || '18:00:00',
+        dailyWithdrawCount: res.dailyWithdrawCount ?? 0,
+        flexiblePayProjectCode: res.flexiblePayProjectCode || '',
         remark: res.remark || '',
         status: res.status ?? CommonStatusEnum.ENABLE,
         sort: res.sort ?? 1
@@ -178,6 +219,10 @@ const resetForm = () => {
     withdrawFeeRate: 0,
     withdrawDescription: '',
     otherDescription: '',
+    withdrawStartTime: '09:00:00',
+    withdrawEndTime: '18:00:00',
+    dailyWithdrawCount: 0,
+    flexiblePayProjectCode: '',
     remark: '',
     status: CommonStatusEnum.ENABLE,
     sort: 1

@@ -8,6 +8,10 @@ export interface BrokerageWithdrawConfigVO {
   withdrawFeeRate?: number
   withdrawDescription?: string
   otherDescription?: string
+  withdrawStartTime?: string
+  withdrawEndTime?: string
+  dailyWithdrawCount?: number
+  flexiblePayProjectCode?: string
   remark?: string
   status?: number
   sort?: number
