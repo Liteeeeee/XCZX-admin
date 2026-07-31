@@ -10,8 +10,8 @@ export interface BrokerageWithdrawConfigVO {
   otherDescription?: string
   withdrawStartTime?: string
   withdrawEndTime?: string
-  dailyWithdrawCount?: number
-  flexiblePayProjectCode?: string
+  dailyWithdrawLimit?: number
+  linggongProjectCode?: string
   remark?: string
   status?: number
   sort?: number
@@ -27,7 +27,10 @@ export const getBrokerageWithdrawConfig = async (id: number) => {
 }
 
 export const getBrokerageWithdrawConfigByCode = async (code: string) => {
-  return await request.get({ url: `/trade/brokerage-withdraw-config/get-by-code`, params: { code } })
+  return await request.get({
+    url: `/trade/brokerage-withdraw-config/get-by-code`,
+    params: { code }
+  })
 }
 
 export const createBrokerageWithdrawConfig = async (data: BrokerageWithdrawConfigVO) => {
@@ -37,4 +40,3 @@ export const createBrokerageWithdrawConfig = async (data: BrokerageWithdrawConfi
 export const updateBrokerageWithdrawConfig = async (data: BrokerageWithdrawConfigVO) => {
   return await request.put({ url: `/trade/brokerage-withdraw-config/update`, data })
 }
-
