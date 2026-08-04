@@ -93,8 +93,6 @@ onMounted(() => {
   kefuStore.setConversationList().then(() => {
     keFuConversationRef.value?.calculationLastMessageTime()
   })
-  // 打开 websocket 连接
-  open()
 })
 
 /** 销毁 */
