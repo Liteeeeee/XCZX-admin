@@ -84,6 +84,11 @@
           <dict-tag :type="DICT_TYPE.PROMOTION_BANNER_POSITION" :value="scope.row.position" />
         </template>
       </el-table-column>
+      <el-table-column align="center" label="标识" prop="bannerCode" min-width="160px">
+        <template #default="{ row }">
+          {{ categoryNameOf(row.bannerCode) }}
+        </template>
+      </el-table-column>
       <el-table-column align="center" label="跳转地址" prop="url" />
       <el-table-column
         :formatter="dateFormatter"
@@ -131,7 +136,9 @@
 <script lang="ts" setup>
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import { dateFormatter } from '@/utils/formatTime'
+import { handleTree } from '@/utils/tree'
 import * as BannerApi from '@/api/mall/market/banner'
+import * as ProductCategoryApi from '@/api/mall/product/category'
 import BannerForm from './BannerForm.vue'
 import { createImageViewer } from '@/components/ImageViewer'
 
@@ -151,6 +158,29 @@ const queryParams = reactive({
   createTime: []
 })
 const queryFormRef = ref() // 搜索的表单
+const categoryMap = ref<Record<string, string>>({})
+const flattenCategoryNames = (list_: any[], map: Record<string, string>) => {
+  if (!list_?.length) return
+  for (const item of list_) {
+    if (item?.id !== undefined && item?.id !== null) {
+      map[String(item.id)] = item.name ?? ''
+    }
+    if (item?.children?.length) {
+      flattenCategoryNames(item.children, map)
+    }
+  }
+}
+const toCategoryKey = (val: any): string => {
+  if (val === undefined || val === null || val === '') return ''
+  const n = Number(val)
+  return Number.isFinite(n) ? String(n) : ''
+}
+const categoryNameOf = (code: any): string => {
+  const key = toCategoryKey(code)
+  if (!key) return '-'
+  const name = categoryMap.value[key]
+  return name ? `${name}（ID:${key}）` : `分类ID:${key}`
+}
 
 /** 文章封面预览 */
 const imagePreview = (imgUrl: string) => {
@@ -208,7 +238,14 @@ const handleDelete = async (id: number) => {
 }
 
 /** 初始化 **/
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const cats = await ProductCategoryApi.getCategoryList({})
+    const tree = handleTree(cats || [], 'id', 'parentId')
+    const map: Record<string, string> = {}
+    flattenCategoryNames(tree, map)
+    categoryMap.value = map
+  } catch {}
   getList()
 })
 </script>

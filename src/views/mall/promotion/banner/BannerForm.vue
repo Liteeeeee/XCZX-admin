@@ -15,7 +15,12 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="标识" prop="bannerCode">
-            <el-input v-model="formData.bannerCode" placeholder="请输入 Banner 标识" />
+            <ProductCategorySelect
+              v-model="formData.bannerCode"
+              :multiple="false"
+              clearable
+              placeholder="请选择产品分类"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -101,8 +106,10 @@
   </Dialog>
 </template>
 <script lang="ts" setup>
+import { cloneDeep } from 'lodash-es'
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import * as BannerApi from '@/api/mall/market/banner'
+import ProductCategorySelect from '@/views/mall/product/category/components/ProductCategorySelect.vue'
 
 const { t } = useI18n() // 国际化
 const message = useMessage() // 消息弹窗
@@ -111,10 +118,15 @@ const dialogVisible = ref(false) // 弹窗的是否展示
 const dialogTitle = ref('') // 弹窗的标题
 const formLoading = ref(false) // 表单的加载中：1）修改时的数据加载；2）提交的按钮禁用
 const formType = ref('') // 表单的类型：create - 新增；update - 修改
+const toCategoryId = (val: any): number | undefined => {
+  if (val === undefined || val === null || val === '') return undefined
+  const n = Number(val)
+  return Number.isFinite(n) ? n : undefined
+}
 const formData = ref({
   id: undefined,
   title: undefined,
-  bannerCode: undefined,
+  bannerCode: undefined as number | undefined,
   picUrl: undefined,
   status: 0,
   position: 1,
@@ -158,7 +170,11 @@ const open = async (type: string, id?: number) => {
   if (id) {
     formLoading.value = true
     try {
-      formData.value = await BannerApi.getBanner(id)
+      const res = await BannerApi.getBanner(id)
+      formData.value = {
+        ...res,
+        bannerCode: toCategoryId(res.bannerCode)
+      }
     } finally {
       formLoading.value = false
     }
@@ -176,7 +192,11 @@ const submitForm = async () => {
   // 提交请求
   formLoading.value = true
   try {
-    const data = formData.value as unknown as BannerApi.BannerVO
+    const data = cloneDeep(formData.value) as unknown as BannerApi.BannerVO
+    ;(data as any).bannerCode =
+      formData.value.bannerCode === undefined || formData.value.bannerCode === null
+        ? ''
+        : String(formData.value.bannerCode)
     if (formType.value === 'create') {
       await BannerApi.createBanner(data)
       message.success(t('common.createSuccess'))
