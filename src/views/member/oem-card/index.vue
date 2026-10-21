@@ -76,6 +76,14 @@
         <el-button @click="handleQuery"><Icon icon="ep:search" class="mr-5px" /> 搜索</el-button>
         <el-button @click="resetQuery"><Icon icon="ep:refresh" class="mr-5px" /> 重置</el-button>
         <el-button
+          type="primary"
+          plain
+          @click="openCreateForm()"
+          v-hasPermi="['member:oem-card:create']"
+        >
+          <Icon icon="ep:plus" class="mr-5px" /> 新增
+        </el-button>
+        <el-button
           type="warning"
           plain
           @click="openImportForm()"
@@ -105,21 +113,34 @@
     >
       <el-table-column type="selection" width="50" align="center" />
       <el-table-column label="编号" align="center" prop="id" width="70" />
-      <el-table-column label="卡号" align="center" prop="cardNo" width="180" show-overflow-tooltip />
-      <el-table-column label="卡密" align="center" prop="cardSecret" width="180" show-overflow-tooltip />
-      <el-table-column label="卡类型" align="center" prop="cardType" width="100" />
-      <el-table-column label="渠道码" align="center" prop="channelCode" width="120" />
-      <el-table-column label="批次号" align="center" prop="batchNo" width="140" show-overflow-tooltip />
-      <el-table-column label="有效天数" align="center" prop="validDays" width="80" />
-      <el-table-column label="绑定会员" align="center" width="160">
+      <el-table-column
+        label="卡号"
+        align="center"
+        prop="cardNo"
+        width="180"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        label="卡密"
+        align="center"
+        prop="cardSecret"
+        width="180"
+        show-overflow-tooltip
+      />
+      <el-table-column label="卡类型" align="center" prop="cardType" width="110" />
+      <el-table-column label="渠道码" align="center" prop="channelCode" width="130" />
+      <el-table-column
+        label="批次号"
+        align="center"
+        prop="batchNo"
+        width="150"
+        show-overflow-tooltip
+      />
+      <el-table-column label="有效天数" align="center" prop="validDays" width="90" />
+      <el-table-column label="来源" align="center" prop="source" width="100" />
+      <el-table-column label="绑定会员" align="center" width="110">
         <template #default="scope">
-          <div v-if="scope.row.userId">
-            <div>ID: {{ scope.row.userId }}</div>
-            <div v-if="scope.row.nickname" class="text-xs text-gray-500">
-              {{ scope.row.nickname }}
-              <span v-if="scope.row.mobile">({{ scope.row.mobile }})</span>
-            </div>
-          </div>
+          <span v-if="scope.row.userId">{{ scope.row.userId }}</span>
           <span v-else class="text-gray-400">-</span>
         </template>
       </el-table-column>
@@ -130,10 +151,34 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="绑定时间" align="center" prop="bindTime" width="170" :formatter="dateFormatter" />
-      <el-table-column label="过期时间" align="center" prop="expireTime" width="170" :formatter="dateFormatter" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="170" :formatter="dateFormatter" />
-      <el-table-column label="备注" align="center" prop="remark" min-width="120" show-overflow-tooltip />
+      <el-table-column
+        label="激活时间"
+        align="center"
+        prop="activateTime"
+        width="170"
+        :formatter="dateFormatter"
+      />
+      <el-table-column
+        label="过期时间"
+        align="center"
+        prop="expireTime"
+        width="170"
+        :formatter="dateFormatter"
+      />
+      <el-table-column
+        label="创建时间"
+        align="center"
+        prop="createTime"
+        width="170"
+        :formatter="dateFormatter"
+      />
+      <el-table-column
+        label="备注"
+        align="center"
+        prop="remark"
+        min-width="120"
+        show-overflow-tooltip
+      />
       <el-table-column label="操作" align="center" width="280" fixed="right">
         <template #default="scope">
           <el-button
@@ -190,7 +235,11 @@
     />
   </ContentWrap>
 
-  <Dialog v-model="updateDialogVisible" title="编辑服务卡" width="600px">
+  <Dialog
+    v-model="updateDialogVisible"
+    :title="formType === 'create' ? '新增服务卡' : '编辑服务卡'"
+    width="600px"
+  >
     <el-form
       ref="updateFormRef"
       :model="updateFormData"
@@ -199,7 +248,14 @@
       v-loading="updateFormLoading"
     >
       <el-form-item label="卡号" prop="cardNo">
-        <el-input v-model="updateFormData.cardNo" disabled />
+        <el-input
+          v-model="updateFormData.cardNo"
+          :disabled="formType === 'update'"
+          :placeholder="formType === 'create' ? '请输入卡号' : ''"
+        />
+      </el-form-item>
+      <el-form-item v-if="formType === 'create'" label="批次号" prop="batchNo">
+        <el-input v-model="updateFormData.batchNo" placeholder="请输入批次号（可选）" />
       </el-form-item>
       <el-form-item label="卡类型" prop="cardType">
         <el-input v-model="updateFormData.cardType" placeholder="请输入卡类型" />
@@ -283,20 +339,16 @@
       label-width="120px"
       v-loading="bindFormLoading"
     >
-      <el-form-item label="卡号" prop="cardNo">
-        <el-input v-model="bindFormData.cardNo" placeholder="请输入卡号，卡号或卡密至少填一个" />
-      </el-form-item>
-      <el-form-item label="卡密" prop="cardSecret">
-        <el-input v-model="bindFormData.cardSecret" placeholder="请输入卡密，卡号或卡密至少填一个" />
+      <el-form-item label="卡片编号" prop="cardId">
+        <el-input-number v-model="bindFormData.cardId" :min="1" style="width: 100%" />
+        <div class="text-xs text-gray-500 mt-5px"> 填写服务卡列表中的「编号」字段（id） </div>
       </el-form-item>
       <el-form-item label="会员编号" prop="userId">
         <el-input-number v-model="bindFormData.userId" :min="1" style="width: 100%" />
       </el-form-item>
       <el-form-item label="强制转移" prop="force">
         <el-switch v-model="bindFormData.force" />
-        <div class="text-xs text-gray-500 mt-5px">
-          开启后，若卡已被他人绑定，将转移给指定会员
-        </div>
+        <div class="text-xs text-gray-500 mt-5px"> 开启后，若卡已被他人绑定，将转移给指定会员 </div>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -380,13 +432,15 @@ const handleSelectionChange = (rows: any[]) => {
   checkedIds.value = rows.map((row) => row.id)
 }
 
-// ===== 编辑服务卡 =====
+// ===== 新建/编辑服务卡 =====
+const formType = ref<'create' | 'update'>('create')
 const updateDialogVisible = ref(false)
 const updateFormLoading = ref(false)
 const updateFormRef = ref<FormInstance>()
 const updateFormData = reactive({
   id: 0,
   cardNo: '',
+  batchNo: '',
   cardType: '',
   channelCode: '',
   cardSecret: '',
@@ -394,8 +448,36 @@ const updateFormData = reactive({
   remark: ''
 })
 const updateFormRules: FormRules = {
+  cardNo: [
+    {
+      required: true,
+      message: '卡号不能为空',
+      trigger: 'blur',
+      validator: (_rule: any, value: string, callback: any) => {
+        if (formType.value === 'create' && !value) {
+          callback(new Error('卡号不能为空'))
+        } else {
+          callback()
+        }
+      }
+    }
+  ],
   cardSecret: [{ required: true, message: '卡密不能为空', trigger: 'blur' }],
   validDays: [{ required: true, message: '有效天数不能为空', trigger: 'change' }]
+}
+const openCreateForm = () => {
+  Object.assign(updateFormData, {
+    id: 0,
+    cardNo: '',
+    batchNo: '',
+    cardType: '',
+    channelCode: '',
+    cardSecret: '',
+    validDays: 0,
+    remark: ''
+  })
+  formType.value = 'create'
+  updateDialogVisible.value = true
 }
 const openUpdateForm = async (id: number) => {
   updateFormLoading.value = true
@@ -404,12 +486,14 @@ const openUpdateForm = async (id: number) => {
     Object.assign(updateFormData, {
       id: data.id,
       cardNo: data.cardNo,
+      batchNo: data.batchNo || '',
       cardType: data.cardType || '',
       channelCode: data.channelCode || '',
       cardSecret: data.cardSecret || '',
       validDays: data.validDays ?? 0,
       remark: data.remark || ''
     })
+    formType.value = 'update'
     updateDialogVisible.value = true
   } finally {
     updateFormLoading.value = false
@@ -421,15 +505,28 @@ const submitUpdateForm = async () => {
   if (!valid) return
   updateFormLoading.value = true
   try {
-    await OemCardApi.updateOemCard({
-      id: updateFormData.id,
-      cardType: updateFormData.cardType,
-      channelCode: updateFormData.channelCode,
-      cardSecret: updateFormData.cardSecret,
-      validDays: updateFormData.validDays,
-      remark: updateFormData.remark
-    })
-    message.success('修改成功')
+    if (formType.value === 'create') {
+      await OemCardApi.createOemCard({
+        cardNo: updateFormData.cardNo,
+        cardSecret: updateFormData.cardSecret,
+        cardType: updateFormData.cardType || undefined,
+        channelCode: updateFormData.channelCode || undefined,
+        batchNo: updateFormData.batchNo || undefined,
+        validDays: updateFormData.validDays,
+        remark: updateFormData.remark || undefined
+      })
+      message.success('新增成功')
+    } else {
+      await OemCardApi.updateOemCard({
+        cardId: updateFormData.id,
+        cardType: updateFormData.cardType,
+        channelCode: updateFormData.channelCode,
+        cardSecret: updateFormData.cardSecret,
+        validDays: updateFormData.validDays,
+        remark: updateFormData.remark
+      })
+      message.success('修改成功')
+    }
     updateDialogVisible.value = false
     await getList()
   } finally {
@@ -499,18 +596,17 @@ const bindDialogVisible = ref(false)
 const bindFormLoading = ref(false)
 const bindFormRef = ref<FormInstance>()
 const bindFormData = reactive({
-  cardNo: '',
-  cardSecret: '',
+  cardId: 0,
   userId: 0,
   force: false
 })
 const bindFormRules: FormRules = {
+  cardId: [{ required: true, message: '请输入卡片编号', trigger: 'change' }],
   userId: [{ required: true, message: '请输入会员编号', trigger: 'change' }]
 }
 const openBindForm = () => {
   Object.assign(bindFormData, {
-    cardNo: '',
-    cardSecret: '',
+    cardId: 0,
     userId: 0,
     force: false
   })
@@ -518,17 +614,12 @@ const openBindForm = () => {
 }
 const submitBindForm = async () => {
   if (!bindFormRef.value) return
-  if (!bindFormData.cardNo && !bindFormData.cardSecret) {
-    message.warning('卡号和卡密至少填写一个')
-    return
-  }
   const valid = await bindFormRef.value.validate().catch(() => false)
   if (!valid) return
   bindFormLoading.value = true
   try {
     await OemCardApi.bindOemCard({
-      cardNo: bindFormData.cardNo || undefined,
-      cardSecret: bindFormData.cardSecret || undefined,
+      cardId: bindFormData.cardId,
       userId: bindFormData.userId,
       force: bindFormData.force
     })
@@ -545,7 +636,7 @@ const handleUpdateStatus = async (row: any, status: number) => {
   try {
     const action = status === 2 ? '停用' : '启用'
     await message.confirm(`确认要${action}卡号为「${row.cardNo}」的服务卡吗？`)
-    await OemCardApi.updateOemCardStatus({ id: row.id, status })
+    await OemCardApi.updateOemCardStatus({ cardId: row.id, status })
     message.success(`${action}成功`)
     await getList()
   } catch {}
@@ -555,7 +646,7 @@ const handleUpdateStatus = async (row: any, status: number) => {
 const handleUnbind = async (id: number) => {
   try {
     await message.confirm('确认要解绑该服务卡吗？解绑后卡片将回到未激活状态，可再次绑定。')
-    await OemCardApi.unbindOemCard({ id })
+    await OemCardApi.unbindOemCard({ cardId: id })
     message.success('解绑成功')
     await getList()
   } catch {}

@@ -8,14 +8,13 @@ export interface OemCardVO {
   channelCode: string
   batchNo: string
   validDays: number
-  userId: number
-  nickname: string
-  mobile: string
-  bindTime: string
-  expireTime: string
+  userId: number | null
   status: number
+  activateTime: string | null
+  expireTime: string | null
+  source: string
   remark: string
-  createTime: string
+  createTime: number
 }
 
 export interface OemCardPageReqVO {
@@ -30,8 +29,18 @@ export interface OemCardPageReqVO {
   pageSize: number
 }
 
+export interface OemCardCreateReqVO {
+  cardNo: string
+  cardSecret: string
+  cardType?: string
+  channelCode?: string
+  batchNo?: string
+  validDays?: number
+  remark?: string
+}
+
 export interface OemCardUpdateReqVO {
-  id: number
+  cardId: number
   cardType?: string
   channelCode?: string
   cardSecret?: string
@@ -40,12 +49,17 @@ export interface OemCardUpdateReqVO {
 }
 
 export interface OemCardStatusReqVO {
-  id: number
+  cardId: number
   status: number
 }
 
 export interface OemCardUnbindReqVO {
-  id: number
+  cardId: number
+}
+
+export interface OemCardImportItemVO {
+  cardNo: string
+  cardSecret: string
 }
 
 export interface OemCardImportReqVO {
@@ -58,8 +72,7 @@ export interface OemCardImportReqVO {
 }
 
 export interface OemCardBindReqVO {
-  cardNo?: string
-  cardSecret?: string
+  cardId: number
   userId: number
   force?: boolean
 }
@@ -70,6 +83,10 @@ export const getOemCardPage = async (params: OemCardPageReqVO) => {
 
 export const getOemCard = async (id: number) => {
   return await request.get({ url: `/member/oem-card/get?id=` + id })
+}
+
+export const createOemCard = async (data: OemCardCreateReqVO) => {
+  return await request.post({ url: `/member/oem-card/create`, data })
 }
 
 export const updateOemCard = async (data: OemCardUpdateReqVO) => {
