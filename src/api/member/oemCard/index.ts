@@ -23,6 +23,7 @@ export interface OemCardPageReqVO {
   cardType?: string
   channelCode?: string
   userId?: number
+  bound?: boolean
   status?: number
   createTime?: string[]
   pageNo: number

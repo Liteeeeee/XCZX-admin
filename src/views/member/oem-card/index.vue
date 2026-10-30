@@ -52,6 +52,17 @@
           class="!w-240px"
         />
       </el-form-item>
+      <el-form-item label="绑定状态" prop="bound">
+        <el-select
+          v-model="queryParams.bound"
+          placeholder="请选择绑定状态"
+          clearable
+          class="!w-240px"
+        >
+          <el-option label="已绑定" :value="true" />
+          <el-option label="未绑定" :value="false" />
+        </el-select>
+      </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择状态" clearable class="!w-240px">
           <el-option
@@ -374,7 +385,9 @@ const cardStatusOptions = [
   { label: '未激活', value: 0 },
   { label: '已激活', value: 1 },
   { label: '已停用', value: 2 },
-  { label: '已过期', value: 3 }
+  { label: '已过期', value: 3 },
+  { label: '已解绑', value: 4 },
+  { label: '激活中', value: 5 }
 ]
 const getCardStatusLabel = (status: number) => {
   const item = cardStatusOptions.find((i) => i.value === status)
@@ -385,7 +398,9 @@ const getCardStatusTagType = (status: number) => {
     0: 'info',
     1: 'success',
     2: 'danger',
-    3: 'warning'
+    3: 'warning',
+    4: 'info',
+    5: 'primary'
   }
   return map[status] || ''
 }
@@ -401,6 +416,7 @@ const queryParams = reactive({
   cardType: undefined as string | undefined,
   channelCode: undefined as string | undefined,
   userId: undefined as number | undefined,
+  bound: undefined as boolean | undefined,
   status: undefined as number | undefined,
   createTime: undefined as string[] | undefined
 })
